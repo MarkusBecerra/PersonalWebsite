@@ -1,0 +1,22 @@
+{
+  "name": "markus-becerra-personal-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "markus-becerra-personal-website",
+  "author": "Markus Becerra",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies": {
+    "gatsby": "^4.16.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  }
+}
