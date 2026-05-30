@@ -1,0 +1,129 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+
+const meta = {
+	title: 'Music',
+	description: 'SoundCloud mixes, activity, and (soon) a concert rating log.'
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SoundCloud mixes.
+// To add a mix: open the track/set on SoundCloud → Share → Embed → copy the
+// `src` URL from the iframe and paste it below. That's it — no code required.
+// ─────────────────────────────────────────────────────────────────────────────
+const mixes: Array<{ title: string; embedUrl: string }> = [
+	// {
+	//   title: 'Rooftop Sunset Set — May 2026',
+	//   embedUrl: 'https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/your-handle/your-set&color=%23db9b3b&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true'
+	// }
+]
+
+const soundcloudProfile = 'https://soundcloud.com/' // ← replace with your handle
+
+// TODO(markus): Concert rating log.
+// Goal: a sortable, filterable list of concerts I've been to with a rating + notes.
+// Extend the same schema to albums and individual tracks later.
+// Likely a new content collection `concerts` (artist, venue, date, rating, review)
+// rendered as a leaderboard / grid here. See the roadmap card below.
+const roadmap = [
+	{
+		title: 'Concert rating system',
+		detail:
+			'Log every show — artist, venue, date — with a personal rating and a short review. Sortable by score, recency, and genre.',
+		status: 'Next up'
+	},
+	{
+		title: 'Albums & tracks',
+		detail:
+			'Extend the same rating model to albums and standout tracks, so the whole listening history lives in one place.',
+		status: 'Planned'
+	},
+	{
+		title: 'Live SoundCloud activity',
+		detail: 'Auto-pull recent reposts, likes, and uploads instead of hand-curating embeds.',
+		status: 'Exploring'
+	}
+]
+---
+
+<PageLayout meta={meta}>
+	<section class='flex flex-col gap-y-3'>
+		<span class='text-sm font-medium uppercase tracking-widest text-brand'>Music</span>
+		<h1 class='font-display text-4xl font-medium tracking-tight sm:text-5xl'>
+			Mixes, sets & a listening log
+		</h1>
+		<p class='max-w-xl text-lg text-muted-foreground'>
+			Mostly SoundCloud — the mixes I make, the sets I play, and what I’m reposting and loving.
+			A proper concert log is on the way.
+		</p>
+		<a
+			href={soundcloudProfile}
+			target='_blank'
+			rel='noopener noreferrer'
+			class='inline-flex w-fit items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
+		>
+			Follow on SoundCloud
+			<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
+				<path fill='currentColor' d='M5 12h13m0 0l-5-5m5 5l-5 5' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill-opacity='0'/>
+			</svg>
+		</a>
+	</section>
+
+	<!-- Mixes -->
+	<section class='mt-14'>
+		<h2 class='mb-4 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
+			Latest mixes
+		</h2>
+		{
+			mixes.length === 0 ? (
+				<div class='rounded-2xl border border-dashed border-border p-8 text-center'>
+					<p class='text-muted-foreground'>
+						No mixes embedded yet. Paste a SoundCloud embed URL into the{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>mixes</code> array in{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>src/pages/music.astro</code>.
+					</p>
+				</div>
+			) : (
+				<div class='flex flex-col gap-y-4'>
+					{mixes.map((mix) => (
+						<div class='overflow-hidden rounded-2xl border border-border bg-card shadow-soft'>
+							<iframe
+								title={mix.title}
+								width='100%'
+								height='166'
+								scrolling='no'
+								frameborder='no'
+								allow='autoplay'
+								loading='lazy'
+								src={mix.embedUrl}
+							/>
+						</div>
+					))}
+				</div>
+			)
+		}
+	</section>
+
+	<!-- Roadmap: concert ratings, albums, live activity -->
+	<section class='mt-14'>
+		<div class='mb-4 flex items-center gap-x-2'>
+			<h2 class='text-sm font-medium uppercase tracking-widest text-muted-foreground'>Roadmap</h2>
+			<span class='rounded-full bg-amber-600/10 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/25 dark:text-amber-300'>
+				TODO
+			</span>
+		</div>
+		<div class='grid gap-4 sm:grid-cols-3'>
+			{
+				roadmap.map((item) => (
+					<div class='flex flex-col gap-y-2 rounded-2xl border border-border bg-card p-5'>
+						<span class='w-fit rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground'>
+							{item.status}
+						</span>
+						<h3 class='font-display text-lg font-medium tracking-tight'>{item.title}</h3>
+						<p class='text-sm text-muted-foreground'>{item.detail}</p>
+					</div>
+				))
+			}
+		</div>
+	</section>
+</PageLayout>

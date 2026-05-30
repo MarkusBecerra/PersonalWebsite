@@ -22,14 +22,17 @@ const {
 		<BaseHead articleDate={articleDate} description={description} ogImage={ogImage} title={title} />
 	</head>
 
-	<body class='flex justify-center bg-background'>
+	<body class='bg-background'>
 		<ThemeProvider />
-		<main
-			class='flex min-h-screen w-screen max-w-[60rem] flex-col items-center px-6 pb-10 pt-7 font-satoshi text-[0.92rem] leading-relaxed sm:px-10 lg:px-10'
-		>
+		<!-- Ambient golden-hour glow, fixed behind everything -->
+		<div class='pointer-events-none fixed inset-x-0 top-0 -z-10 h-[60vh] glow-sunset' aria-hidden='true'></div>
+
+		<div class='mx-auto flex min-h-screen w-full max-w-3xl flex-col px-6 pb-16 pt-8 sm:px-8'>
 			<Header />
-			<slot />
+			<main class='flex-1 font-sans text-[0.95rem] leading-relaxed'>
+				<slot />
+			</main>
 			<Footer />
-		</main>
+		</div>
 	</body>
 </html>

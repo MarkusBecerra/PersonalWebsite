@@ -7,19 +7,19 @@ import PostLayout from '@/layouts/BlogPost.astro'
 import { getAllPosts } from '@/utils'
 
 export const getStaticPaths = (async () => {
-	const blogEntries = await getAllPosts()
-	return blogEntries.map((entry) => ({
-		params: { slug: entry.slug },
-		props: { entry }
+	const posts = await getAllPosts()
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+		props: { post }
 	}))
 }) satisfies GetStaticPaths
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>
 
-const { entry } = Astro.props
-const { Content } = await entry.render()
+const { post } = Astro.props
+const { Content } = await post.render()
 ---
 
-<PostLayout post={entry}>
+<PostLayout post={post}>
 	<Content />
 </PostLayout>

@@ -7,13 +7,17 @@ function removeDupsAndLowerCase(array: string[]) {
 	return Array.from(distinctItems)
 }
 
-const post = defineCollection({
-	type: 'content',
+// The three pillars of the site + a catch-all. `engineering` covers tech/software,
+// `music` covers DJ/production, `recreation` covers climbing/hobbies.
+export const CATEGORIES = ['engineering', 'music', 'recreation', 'general'] as const
+
+const blog = defineCollection({
+	type: 'content', // Markdown + MDX live in src/content/blog
 	schema: ({ image }) =>
 		z.object({
-			title: z.string().max(60),
-			description: z.string().min(50).max(160),
-			publishDate: z
+			title: z.string().max(80),
+			description: z.string().min(20).max(160),
+			pubDate: z
 				.string()
 				.or(z.date())
 				.transform((val) => new Date(val)),
@@ -21,16 +25,17 @@ const post = defineCollection({
 				.string()
 				.optional()
 				.transform((str) => (str ? new Date(str) : undefined)),
-			coverImage: z
+			category: z.enum(CATEGORIES).default('general'),
+			tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
+			heroImage: z
 				.object({
 					src: image(),
 					alt: z.string()
 				})
 				.optional(),
 			draft: z.boolean().default(false),
-			tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
 			ogImage: z.string().optional()
 		})
 })
 
-export const collections = { post }
+export const collections = { blog }

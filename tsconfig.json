@@ -8,6 +8,7 @@
 		"paths": {
 			"@/assets/*": ["src/assets/*"],
 			"@/components/*": ["src/components/*"],
+			"@/content/*": ["src/content/*"],
 			"@/layouts/*": ["src/layouts/*"],
 			"@/utils": ["src/utils/index.ts"],
 			"@/types": ["src/types.ts"],
