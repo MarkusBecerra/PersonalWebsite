@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content'
+import { render } from 'astro:content'
 import { Image } from 'astro:assets'
 import FormattedDate from '../FormattedDate.astro'
 import CategoryBadge from '../CategoryBadge.astro'
@@ -8,11 +9,10 @@ interface Props {
 	content: CollectionEntry<'blog'>
 }
 
-const {
-	content: { data, render }
-} = Astro.props
+const { content } = Astro.props
+const { data } = content
 
-const { remarkPluginFrontmatter } = await render()
+const { remarkPluginFrontmatter } = await render(content)
 ---
 
 <div class='flex flex-col gap-y-4'>

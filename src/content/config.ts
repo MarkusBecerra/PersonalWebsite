@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content'
+import { glob } from 'astro/loaders'
 
 function removeDupsAndLowerCase(array: string[]) {
 	if (!array.length) return array
@@ -12,7 +13,12 @@ function removeDupsAndLowerCase(array: string[]) {
 export const CATEGORIES = ['engineering', 'music', 'recreation', 'general'] as const
 
 const blog = defineCollection({
-	type: 'content', // Markdown + MDX live in src/content/blog
+	// Content Layer glob loader — Markdown + MDX live in src/content/blog.
+	// Files/folders starting with "_" (e.g. _template.md) are excluded.
+	loader: glob({
+		pattern: ['**/*.{md,mdx}', '!**/_*', '!**/_*/**'],
+		base: './src/content/blog'
+	}),
 	schema: ({ image }) =>
 		z.object({
 			title: z.string().max(80),

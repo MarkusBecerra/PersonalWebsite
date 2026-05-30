@@ -9,7 +9,7 @@ import expressiveCode from 'astro-expressive-code'
 import { expressiveCodeOptions } from './src/site.config'
 import icon from 'astro-icon'
 
-import vercel from '@astrojs/vercel/static'
+import vercel from '@astrojs/vercel'
 
 // https://astro.build/config
 export default defineConfig({
