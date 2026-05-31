@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content'
+
+import PageLayout from '@/layouts/BaseLayout.astro'
+import PostPreview from '@/components/blog/PostPreview.astro'
+import CategoryBadge from '@/components/CategoryBadge.astro'
+import { CATEGORIES } from '@/content/config'
+import { getAllPosts, sortMDByDate } from '@/utils'
+
+const allPosts = await getAllPosts()
+const posts = sortMDByDate(allPosts)
+
+// Group for the simple category filter chips.
+const counts = CATEGORIES.reduce<Record<string, number>>((acc, c) => {
+	acc[c] = posts.filter((p: CollectionEntry<'blog'>) => p.data.category === c).length
+	return acc
+}, {})
+
+const meta = {
+	title: 'Blog',
+	description: 'Notes on engineering, music, and recreation.'
+}
+---
+
+<PageLayout meta={meta}>
+	<div class='flex flex-col gap-y-2'>
+		<h1 class='font-display text-4xl font-medium tracking-tight sm:text-5xl'>Writing</h1>
+		<p class='text-lg text-muted-foreground'>
+			Long-form notes from the build, the booth, and the boulder.
+		</p>
+	</div>
+
+	<!-- Category legend (each pillar, color-coded) -->
+	<div class='mt-6 flex flex-wrap gap-2'>
+		{
+			CATEGORIES.filter((c) => counts[c] > 0).map((c) => (
+				<span class='inline-flex items-center gap-x-1.5'>
+					<CategoryBadge category={c} />
+					<span class='text-xs text-muted-foreground'>{counts[c]}</span>
+				</span>
+			))
+		}
+	</div>
+
+	<section class='mt-10' aria-label='All blog posts'>
+		{
+			posts.length === 0 ? (
+				<p class='rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground'>
+					No posts yet — check back soon.
+				</p>
+			) : (
+				<div class='flex flex-col divide-y divide-border'>
+					{posts.map((p) => (
+						<PostPreview as='h2' post={p} withDesc />
+					))}
+				</div>
+			)
+		}
+	</section>
+</PageLayout>

@@ -12,8 +12,8 @@ export const GET = async () => {
 		items: posts.map((post) => ({
 			title: post.data.title,
 			description: post.data.description,
-			pubDate: post.data.publishDate,
-			link: `/blog/${post.slug}`
+			pubDate: post.data.pubDate,
+			link: `/blog/${post.id}`
 		}))
 	})
 }

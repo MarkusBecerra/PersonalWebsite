@@ -51,6 +51,10 @@ const config = {
 				card: {
 					DEFAULT: 'hsl(var(--card) / <alpha-value>)',
 					foreground: 'hsl(var(--card-foreground) / <alpha-value>)'
+				},
+				brand: {
+					DEFAULT: 'hsl(var(--brand) / <alpha-value>)',
+					foreground: 'hsl(var(--brand-foreground) / <alpha-value>)'
 				}
 			},
 			borderRadius: {
@@ -59,8 +63,13 @@ const config = {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			fontFamily: {
-				sans: [...fontFamily.sans],
+				sans: ['Satoshi', ...fontFamily.sans],
 				satoshi: ['Satoshi', 'sans'],
+				display: ['Fraunces', 'Georgia', ...fontFamily.serif],
+				mono: [...fontFamily.mono]
+			},
+			boxShadow: {
+				soft: '0 1px 2px hsl(var(--foreground) / 0.04), 0 8px 24px -12px hsl(var(--foreground) / 0.12)'
 			}
 		}
 	}

@@ -43,6 +43,14 @@ const socialImageURL = new URL(ogImage ? ogImage : '/social-card.png', Astro.url
 />
 <link rel='preload' href='/fonts/ClashDisplay-Variable.ttf' as='font' type='font/ttf' crossorigin /> -->
 
+{/* Display serif — Fraunces — for that warm, editorial, golden-hour feel */}
+<link rel='preconnect' href='https://fonts.googleapis.com' />
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+<link
+	rel='stylesheet'
+	href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap'
+/>
+
 {/* Canonical URL */}
 <link rel='canonical' href={canonicalURL} />
 
@@ -52,7 +60,7 @@ const socialImageURL = new URL(ogImage ? ogImage : '/social-card.png', Astro.url
 <meta content={siteConfig.author} name='author' />
 
 {/* Theme Colour */}
-<meta content='' name='theme-color' />
+<meta content='#1a1320' name='theme-color' />
 
 {/* Open Graph / Facebook */}
 <meta content={articleDate ? 'article' : 'website'} property='og:type' />

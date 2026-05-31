@@ -3,34 +3,36 @@ import type { HTMLTag, Polymorphic } from 'astro/types'
 import type { CollectionEntry } from 'astro:content'
 
 import FormattedDate from '../FormattedDate.astro'
+import CategoryBadge from '../CategoryBadge.astro'
 
 type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }> & {
-	post: CollectionEntry<'post'>
+	post: CollectionEntry<'blog'>
 	withDesc?: boolean
 }
 
 const { as: Tag = 'div', post, withDesc = false } = Astro.props
-const postDate = post.data.updatedDate ?? post.data.publishDate
+const postDate = post.data.updatedDate ?? post.data.pubDate
 ---
 
-<li class='flex flex-col gap-2 sm:flex-row sm:gap-x-4 [&_q]:basis-full'>
-	<FormattedDate class='min-w-[120px]' date={postDate} />
+<a
+	data-astro-prefetch
+	href={`/blog/${post.id}/`}
+	class='group -mx-4 flex flex-col gap-y-2 rounded-2xl px-4 py-4 transition-colors hover:bg-secondary/60'
+>
+	<div class='flex items-center gap-x-3 text-xs text-muted-foreground'>
+		<FormattedDate date={postDate} />
+		<span class='h-1 w-1 rounded-full bg-border'></span>
+		<CategoryBadge category={post.data.category} />
+		{post.data.draft && <span class='font-medium text-destructive'>Draft</span>}
+	</div>
 
-	<Tag>
-		{post.data.draft && <span class='text-red-500'>(Draft) </span>}
-		<a
-			data-astro-prefetch
-			href={`/blog/${post.slug}/`}
-			class='transition-all hover:text-muted-foreground'
-		>
-			{post.data.title}
-		</a>
-		{
-			withDesc && (
-				<p class='line-clamp-3 block text-sm italic text-muted-foreground'>
-					{post.data.description}
-				</p>
-			)
-		}
+	<Tag class='text-lg font-medium tracking-tight transition-colors group-hover:text-brand'>
+		{post.data.title}
 	</Tag>
-</li>
+
+	{
+		withDesc && (
+			<p class='line-clamp-2 text-sm text-muted-foreground'>{post.data.description}</p>
+		)
+	}
+</a>

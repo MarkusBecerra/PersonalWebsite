@@ -17,48 +17,64 @@
 }
 
 @layer base {
+	/* Light — "ivory atelier": warm bone paper, espresso ink, antique-gold signal. */
 	:root {
-		--background: 210 33% 99%;
-		--foreground: 240 10% 3.9%;
-		--card: 0 0% 100%;
-		--card-foreground: 240 10% 3.9%;
-		--popover: 0 0% 100%;
-		--popover-foreground: 240 10% 3.9%;
-		--primary: 240 5.9% 10%;
-		--primary-foreground: 0 0% 98%;
-		--secondary: 240 4.8% 95.9%;
-		--secondary-foreground: 240 5.9% 10%;
-		--muted: 240 4.8% 95.9%;
-		--muted-foreground: 240 3.8% 46.1%;
-		--accent: 240 4.8% 95.9%;
-		--accent-foreground: 240 5.9% 10%;
-		--destructive: 0 72.22% 50.59%;
-		--destructive-foreground: 0 0% 98%;
-		--border: 240 5.9% 90%;
-		--input: 240 5.9% 90%;
-		--ring: 240 5.9% 10%;
-		--radius: 0.5rem;
+		--background: 40 30% 96%;
+		--foreground: 30 12% 11%;
+		--card: 40 36% 98%;
+		--card-foreground: 30 12% 11%;
+		--popover: 40 36% 98%;
+		--popover-foreground: 30 12% 11%;
+		--primary: 30 12% 12%;
+		--primary-foreground: 40 30% 96%;
+		--secondary: 36 18% 92%;
+		--secondary-foreground: 30 12% 12%;
+		--muted: 36 16% 92%;
+		--muted-foreground: 32 8% 40%;
+		--accent: 38 40% 92%;
+		--accent-foreground: 30 12% 12%;
+		--destructive: 0 65% 45%;
+		--destructive-foreground: 40 30% 96%;
+		--border: 36 16% 87%;
+		--input: 36 16% 87%;
+		--ring: 38 64% 46%;
+		/* Antique-gold signal — restrained, used for accents, links, markers. */
+		--brand: 38 64% 46%;
+		--brand-foreground: 40 30% 96%;
+		/* Monochromatic gold → bronze wash (no pinks). */
+		--sunset-1: 44 70% 56%; /* champagne gold */
+		--sunset-2: 36 66% 48%; /* amber gold     */
+		--sunset-3: 28 52% 40%; /* bronze         */
+		--radius: 0.85rem;
 	}
+
+	/* Dark — "midnight tailoring": deep warm charcoal, ivory text, gold glow. */
 	.dark {
-		--background: 240 10% 3.9%;
-		--foreground: 0 0% 98%;
-		--card: 240 10% 3.9%;
-		--card-foreground: 0 0% 98%;
-		--popover: 240 10% 3.9%;
-		--popover-foreground: 0 0% 98%;
-		--primary: 0 0% 98%;
-		--primary-foreground: 240 5.9% 10%;
-		--secondary: 240 3.7% 15.9%;
-		--secondary-foreground: 0 0% 98%;
-		--muted: 240 3.7% 15.9%;
-		--muted-foreground: 240 5% 64.9%;
-		--accent: 240 3.7% 15.9%;
-		--accent-foreground: 0 0% 98%;
-		--destructive: 0 62.8% 30.6%;
-		--destructive-foreground: 0 0% 98%;
-		--border: 240 3.7% 15.9%;
-		--input: 240 3.7% 15.9%;
-		--ring: 240 4.9% 83.9%;
+		--background: 30 9% 7%;
+		--foreground: 40 28% 91%;
+		--card: 30 9% 10%;
+		--card-foreground: 40 28% 91%;
+		--popover: 30 9% 10%;
+		--popover-foreground: 40 28% 91%;
+		--primary: 40 28% 91%;
+		--primary-foreground: 30 9% 7%;
+		--secondary: 32 9% 16%;
+		--secondary-foreground: 40 28% 91%;
+		--muted: 32 9% 16%;
+		--muted-foreground: 36 12% 62%;
+		--accent: 34 12% 18%;
+		--accent-foreground: 40 28% 91%;
+		--destructive: 0 55% 42%;
+		--destructive-foreground: 40 28% 91%;
+		--border: 34 10% 20%;
+		--input: 34 10% 20%;
+		--ring: 40 72% 58%;
+		--brand: 40 72% 58%;
+		--brand-foreground: 30 9% 7%;
+		--sunset-1: 46 78% 64%;
+		--sunset-2: 38 70% 54%;
+		--sunset-3: 30 54% 44%;
+		--radius: 0.85rem;
 	}
 }
 
@@ -67,6 +83,40 @@
 		@apply border-border;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-foreground antialiased;
+	}
+	:focus-visible {
+		@apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-background;
+	}
+}
+
+@layer utilities {
+	/* The golden-hour gradient — rose → coral → amber. */
+	.bg-sunset {
+		background-image: linear-gradient(
+			110deg,
+			hsl(var(--sunset-1)),
+			hsl(var(--sunset-2)) 50%,
+			hsl(var(--sunset-3))
+		);
+	}
+	.text-sunset {
+		background-image: linear-gradient(
+			110deg,
+			hsl(var(--sunset-1)),
+			hsl(var(--sunset-2)) 50%,
+			hsl(var(--sunset-3))
+		);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+	/* Soft ambient glow placed behind the hero, like light over a rooftop. */
+	.glow-sunset {
+		background: radial-gradient(
+			60% 60% at 50% 0%,
+			hsl(var(--sunset-2) / 0.22),
+			transparent 70%
+		);
 	}
 }
