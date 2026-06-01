@@ -17,63 +17,63 @@
 }
 
 @layer base {
-	/* Light — "ivory atelier": warm bone paper, espresso ink, antique-gold signal. */
+	/* Light — "cool paper": soft blue-gray page, crisp white cards, navy ink. */
 	:root {
-		--background: 40 30% 96%;
-		--foreground: 30 12% 11%;
-		--card: 40 36% 98%;
-		--card-foreground: 30 12% 11%;
-		--popover: 40 36% 98%;
-		--popover-foreground: 30 12% 11%;
-		--primary: 30 12% 12%;
-		--primary-foreground: 40 30% 96%;
-		--secondary: 36 18% 92%;
-		--secondary-foreground: 30 12% 12%;
-		--muted: 36 16% 92%;
-		--muted-foreground: 32 8% 40%;
-		--accent: 38 40% 92%;
-		--accent-foreground: 30 12% 12%;
+		--background: 220 18% 93%;
+		--foreground: 222 28% 12%;
+		--card: 220 22% 97%;
+		--card-foreground: 222 28% 12%;
+		--popover: 220 22% 97%;
+		--popover-foreground: 222 28% 12%;
+		--primary: 222 28% 12%;
+		--primary-foreground: 220 18% 93%;
+		--secondary: 220 14% 88%;
+		--secondary-foreground: 222 28% 12%;
+		--muted: 220 12% 88%;
+		--muted-foreground: 220 8% 42%;
+		--accent: 220 18% 89%;
+		--accent-foreground: 222 28% 12%;
 		--destructive: 0 65% 45%;
-		--destructive-foreground: 40 30% 96%;
-		--border: 36 16% 87%;
-		--input: 36 16% 87%;
-		--ring: 38 64% 46%;
-		/* Antique-gold signal — restrained, used for accents, links, markers. */
-		--brand: 38 64% 46%;
-		--brand-foreground: 40 30% 96%;
-		/* Monochromatic gold → bronze wash (no pinks). */
-		--sunset-1: 44 70% 56%; /* champagne gold */
-		--sunset-2: 36 66% 48%; /* amber gold     */
-		--sunset-3: 28 52% 40%; /* bronze         */
+		--destructive-foreground: 220 18% 93%;
+		--border: 220 14% 84%;
+		--input: 220 14% 84%;
+		--ring: 221 58% 46%;
+		/* Steel-blue signal — restrained, used for accents, links, markers. */
+		--brand: 221 58% 46%;
+		--brand-foreground: 220 18% 93%;
+		/* Sky → steel → navy gradient. */
+		--sunset-1: 208 72% 62%; /* sky blue   */
+		--sunset-2: 221 62% 50%; /* steel blue */
+		--sunset-3: 232 52% 40%; /* deep navy  */
 		--radius: 0.85rem;
 	}
 
-	/* Dark — "midnight tailoring": deep warm charcoal, ivory text, gold glow. */
+	/* Dark — "midnight navy": deep navy-charcoal, cool white text, periwinkle glow. */
 	.dark {
-		--background: 30 9% 7%;
-		--foreground: 40 28% 91%;
-		--card: 30 9% 10%;
-		--card-foreground: 40 28% 91%;
-		--popover: 30 9% 10%;
-		--popover-foreground: 40 28% 91%;
-		--primary: 40 28% 91%;
-		--primary-foreground: 30 9% 7%;
-		--secondary: 32 9% 16%;
-		--secondary-foreground: 40 28% 91%;
-		--muted: 32 9% 16%;
-		--muted-foreground: 36 12% 62%;
-		--accent: 34 12% 18%;
-		--accent-foreground: 40 28% 91%;
+		--background: 222 22% 8%;
+		--foreground: 220 18% 92%;
+		--card: 222 20% 11%;
+		--card-foreground: 220 18% 92%;
+		--popover: 222 20% 11%;
+		--popover-foreground: 220 18% 92%;
+		--primary: 220 18% 92%;
+		--primary-foreground: 222 22% 8%;
+		--secondary: 222 16% 17%;
+		--secondary-foreground: 220 18% 92%;
+		--muted: 222 16% 17%;
+		--muted-foreground: 220 10% 60%;
+		--accent: 222 16% 20%;
+		--accent-foreground: 220 18% 92%;
 		--destructive: 0 55% 42%;
-		--destructive-foreground: 40 28% 91%;
-		--border: 34 10% 20%;
-		--input: 34 10% 20%;
-		--ring: 40 72% 58%;
-		--brand: 40 72% 58%;
-		--brand-foreground: 30 9% 7%;
-		--sunset-1: 46 78% 64%;
-		--sunset-2: 38 70% 54%;
-		--sunset-3: 30 54% 44%;
+		--destructive-foreground: 220 18% 92%;
+		--border: 222 14% 22%;
+		--input: 222 14% 22%;
+		--ring: 221 68% 65%;
+		--brand: 221 68% 65%;
+		--brand-foreground: 222 22% 8%;
+		--sunset-1: 208 80% 68%; /* light sky   */
+		--sunset-2: 221 70% 58%; /* periwinkle  */
+		--sunset-3: 232 60% 48%; /* navy        */
 		--radius: 0.85rem;
 	}
 }
@@ -91,7 +91,7 @@
 }
 
 @layer utilities {
-	/* The golden-hour gradient — rose → coral → amber. */
+	/* Sky → steel → navy gradient. */
 	.bg-sunset {
 		background-image: linear-gradient(
 			110deg,
@@ -111,11 +111,11 @@
 		background-clip: text;
 		color: transparent;
 	}
-	/* Soft ambient glow placed behind the hero, like light over a rooftop. */
+	/* Soft ambient blue glow behind the hero. */
 	.glow-sunset {
 		background: radial-gradient(
 			60% 60% at 50% 0%,
-			hsl(var(--sunset-2) / 0.22),
+			hsl(var(--sunset-2) / 0.10),
 			transparent 70%
 		);
 	}
