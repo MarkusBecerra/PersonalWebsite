@@ -1,0 +1,112 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+import WorkExperienceCard from '@/components/WorkExperienceCard.astro'
+
+// ─── Skills ───────────────────────────────────────────────────────────────────
+// Replace / extend with your actual skills and honest levels.
+// Levels: 'advanced' | 'intermediate' | 'beginner'
+type Level = 'advanced' | 'intermediate' | 'beginner'
+
+const skills: Array<{ name: string; level: Level }> = [
+	{ name: '[Skill A]', level: 'advanced' },
+	{ name: '[Skill B]', level: 'advanced' },
+	{ name: '[Skill C]', level: 'intermediate' },
+	{ name: '[Skill D]', level: 'intermediate' },
+	{ name: '[Skill E]', level: 'beginner' }
+]
+
+// Sort advanced → intermediate → beginner so the hierarchy reads left-to-right.
+const levelOrder: Record<Level, number> = { advanced: 0, intermediate: 1, beginner: 2 }
+const sortedSkills = [...skills].sort((a, b) => levelOrder[a.level] - levelOrder[b.level])
+
+const levelStyle: Record<Level, string> = {
+	advanced: 'bg-brand/10 text-brand border border-brand/25',
+	intermediate: 'bg-secondary text-secondary-foreground border border-border',
+	beginner: 'bg-secondary/50 text-muted-foreground border border-border'
+}
+
+const levelDot: Record<Level, string> = {
+	advanced: 'bg-brand/80',
+	intermediate: 'bg-secondary-foreground/35',
+	beginner: 'bg-muted-foreground/30'
+}
+
+// ─── Experience ───────────────────────────────────────────────────────────────
+// Add one object per role. Duplicate the template block to add more entries.
+// Fields:
+//   employer  — company or organization name
+//   title     — your job title / role
+//   duration  — e.g. "Jun 2022 – Present" or "Jan 2020 – May 2022"
+//   team      — team or department name
+//   location  — city, state or "Remote" (optional)
+//   skills    — list of tools / languages / frameworks you used in this role
+const experiences = [
+	{
+		employer: '[Company Name]',
+		title: '[Your Title]',
+		duration: '[Start] – [End or Present]',
+		team: '[Team / Department]',
+		location: '[City, State or Remote]',
+		skills: ['[Skill A]', '[Skill B]', '[Skill C]']
+	}
+	// Add more entries here ↑
+]
+---
+
+<PageLayout
+	meta={{ title: 'Work', description: 'Professional experience and skills of Markus Becerra.' }}
+>
+	<!-- Page header -->
+	<section class='flex flex-col gap-y-3'>
+		<span class='text-sm font-medium uppercase tracking-widest text-brand'>Work</span>
+		<h1 class='font-display text-4xl font-medium tracking-tight sm:text-5xl'>
+			Professional experience
+		</h1>
+		<p class='max-w-xl text-lg text-muted-foreground'>
+			The roles I've held and the skills I've built — paid, shipped, and production-grade.
+		</p>
+	</section>
+
+	<!-- Skills ──────────────────────────────────────────────────────────────── -->
+	<section class='mt-14'>
+		<div class='mb-4 flex flex-wrap items-center justify-between gap-y-2'>
+			<h2 class='text-sm font-medium uppercase tracking-widest text-muted-foreground'>Skills</h2>
+			<!-- Level legend -->
+			<div class='flex items-center gap-x-4 text-xs text-muted-foreground'>
+				{
+					(['advanced', 'intermediate', 'beginner'] as Level[]).map((lvl) => (
+						<span class='flex items-center gap-x-1.5 capitalize'>
+							<span class:list={['h-2 w-2 rounded-full', levelDot[lvl]]} />
+							{lvl}
+						</span>
+					))
+				}
+			</div>
+		</div>
+
+		<div class='flex flex-wrap gap-2'>
+			{
+				sortedSkills.map((skill) => (
+					<span
+						class:list={[
+							'flex items-center gap-x-2 rounded-full px-4 py-2 text-sm font-medium',
+							levelStyle[skill.level]
+						]}
+					>
+						{skill.name}
+					</span>
+				))
+			}
+		</div>
+	</section>
+
+	<!-- Experience ──────────────────────────────────────────────────────────── -->
+	<section class='mt-14'>
+		<h2 class='mb-5 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
+			Experience
+		</h2>
+		<div class='flex flex-col gap-y-4'>
+			{experiences.map((exp) => <WorkExperienceCard {...exp} />)}
+		</div>
+	</section>
+</PageLayout>

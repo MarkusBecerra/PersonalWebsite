@@ -1,0 +1,78 @@
+---
+interface Props {
+	employer: string
+	title: string
+	duration: string
+	team: string
+	skills: string[]
+	location?: string
+}
+
+const { employer, title, duration, team, location, skills } = Astro.props
+---
+
+<div class='rounded-2xl border border-border bg-card p-6 shadow-soft'>
+	<div class='flex flex-col gap-y-5'>
+		<div class='flex flex-col gap-y-2 sm:flex-row sm:items-start sm:justify-between'>
+			<div>
+				<h3 class='font-display text-xl font-medium tracking-tight'>{employer}</h3>
+				<p class='mt-0.5 text-muted-foreground'>{title}</p>
+			</div>
+			<span
+				class='w-fit shrink-0 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground sm:ml-4'
+			>
+				{duration}
+			</span>
+		</div>
+
+		<div class='flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground'>
+			<span class='flex items-center gap-x-1.5'>
+				<svg
+					class='h-4 w-4 shrink-0'
+					viewBox='0 0 24 24'
+					fill='none'
+					stroke='currentColor'
+					stroke-width='1.75'
+					stroke-linecap='round'
+					stroke-linejoin='round'
+				>
+					<path
+						d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'
+					></path>
+				</svg>
+				{team}
+			</span>
+			{
+				location && (
+					<span class='flex items-center gap-x-1.5'>
+						<svg
+							class='h-4 w-4 shrink-0'
+							viewBox='0 0 24 24'
+							fill='none'
+							stroke='currentColor'
+							stroke-width='1.75'
+							stroke-linecap='round'
+							stroke-linejoin='round'
+						>
+							<path d='M12 21s-8-6.5-8-12a8 8 0 0 1 16 0c0 5.5-8 12-8 12z' />
+							<circle cx='12' cy='9' r='3' />
+						</svg>
+						{location}
+					</span>
+				)
+			}
+		</div>
+
+		{
+			skills.length > 0 && (
+				<div class='flex flex-wrap gap-2'>
+					{skills.map((skill) => (
+						<span class='rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground'>
+							{skill}
+						</span>
+					))}
+				</div>
+			)
+		}
+	</div>
+</div>
