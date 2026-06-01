@@ -1,0 +1,253 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+import ProjectEntry from '@/components/ProjectEntry.astro'
+
+const meta = {
+	title: 'Projects',
+	description: 'Music mixes, software side projects, fitness milestones — everything I\'m building outside work.'
+}
+
+// ─── MUSIC ────────────────────────────────────────────────────────────────────
+// To add a mix: open the track/set on SoundCloud → Share → Embed → copy the
+// `src` URL from the iframe and paste it below.
+const mixes: Array<{ title: string; embedUrl: string }> = [
+	// {
+	//   title: 'Rooftop Sunset Set — May 2026',
+	//   embedUrl: 'https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/your-handle/your-set&color=%23db9b3b&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true'
+	// }
+]
+
+const soundcloudProfile = 'https://soundcloud.com/' // ← replace with your handle
+
+const musicRoadmap = [
+	{
+		title: 'Concert rating system',
+		detail:
+			'Log every show — artist, venue, date — with a personal rating and a short review. Sortable by score, recency, and genre.',
+		status: 'Next up'
+	},
+	{
+		title: 'Albums & tracks',
+		detail:
+			'Extend the same rating model to albums and standout tracks, so the whole listening history lives in one place.',
+		status: 'Planned'
+	},
+	{
+		title: 'Live SoundCloud activity',
+		detail: 'Auto-pull recent reposts, likes, and uploads instead of hand-curating embeds.',
+		status: 'Exploring'
+	}
+]
+
+// ─── SOFTWARE ─────────────────────────────────────────────────────────────────
+// Add software / side projects here. Each entry takes:
+//   title       — project name
+//   description — 1–2 sentence summary
+//   tags        — tech stack or keywords (optional)
+//   links       — array of { label, href } for GitHub, live demo, etc. (optional)
+//   badge       — short status label, e.g. 'Active', 'Shipped', 'WIP' (optional)
+const softwareProjects: Array<{
+	title: string
+	description: string
+	tags?: string[]
+	links?: Array<{ label: string; href: string }>
+	badge?: string
+}> = [
+	// {
+	//   title: 'Personal Website',
+	//   description: 'This site — built with Astro 5, Tailwind CSS, and deployed on Vercel.',
+	//   tags: ['Astro', 'TypeScript', 'Tailwind'],
+	//   links: [{ label: 'GitHub', href: 'https://github.com/your-handle/personal-website' }],
+	//   badge: 'Active'
+	// }
+]
+
+// ─── FITNESS ──────────────────────────────────────────────────────────────────
+// Log fitness milestones, climbing sends, race results — anything worth tracking.
+// Use `badge` for the activity type (e.g. 'Bouldering', 'Running', 'Weightlifting').
+const fitnessProjects: Array<{
+	title: string
+	description: string
+	tags?: string[]
+	links?: Array<{ label: string; href: string }>
+	badge?: string
+}> = [
+	// {
+	//   title: 'V6 Flash — Movement Oakland',
+	//   description: 'Flashed my first V6 bouldering problem. Comp-style set with a big dynamic move to the lip.',
+	//   tags: ['Bouldering', 'V6', 'Flash'],
+	//   badge: 'Climbing'
+	// }
+]
+---
+
+<PageLayout meta={meta}>
+	<!-- Hero -->
+	<section class='flex flex-col gap-y-3'>
+		<span class='text-sm font-medium uppercase tracking-widest text-brand'>Projects</span>
+		<h1 class='font-display text-4xl font-medium tracking-tight sm:text-5xl'>
+			Things I'm building, mixing & tracking.
+		</h1>
+		<p class='max-w-xl text-lg text-muted-foreground'>
+			A running catalogue of what I'm working on — music, software, and fitness milestones. Each
+			category lives in its own section below.
+		</p>
+	</section>
+
+	<!-- ─── Music ─────────────────────────────────────────────────────────────── -->
+	<section id='music' class='mt-14'>
+		<div class='mb-6 flex flex-col gap-y-1.5'>
+			<h2 class='font-display text-2xl font-medium tracking-tight'>Music</h2>
+			<p class='text-sm text-muted-foreground'>
+				Mostly SoundCloud — the mixes I make, the sets I play, and what I'm reposting and loving.
+				A proper concert log is on the way.
+			</p>
+			<a
+				href={soundcloudProfile}
+				target='_blank'
+				rel='noopener noreferrer'
+				class='mt-1 inline-flex w-fit items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
+			>
+				Follow on SoundCloud
+				<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
+					<path
+						fill='currentColor'
+						d='M5 12h13m0 0l-5-5m5 5l-5 5'
+						stroke='currentColor'
+						stroke-width='2'
+						stroke-linecap='round'
+						stroke-linejoin='round'
+						fill-opacity='0'
+					></path>
+				</svg>
+			</a>
+		</div>
+
+		<h3 class='mb-3 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
+			Latest mixes
+		</h3>
+		{
+			mixes.length === 0 ? (
+				<div class='rounded-2xl border border-dashed border-border p-8 text-center'>
+					<p class='text-muted-foreground'>
+						No mixes embedded yet. Paste a SoundCloud embed URL into the{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>mixes</code> array
+						in{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
+							src/pages/projects.astro
+						</code>
+						.
+					</p>
+				</div>
+			) : (
+				<div class='flex flex-col gap-y-4'>
+					{mixes.map((mix) => (
+						<div class='overflow-hidden rounded-2xl border border-border bg-card shadow-soft'>
+							<iframe
+								title={mix.title}
+								width='100%'
+								height='166'
+								class='block border-0'
+								allow='autoplay'
+								loading='lazy'
+								src={mix.embedUrl}
+							/>
+						</div>
+					))}
+				</div>
+			)
+		}
+
+		<div class='mt-10'>
+			<div class='mb-4 flex items-center gap-x-2'>
+				<h3 class='text-sm font-medium uppercase tracking-widest text-muted-foreground'>
+					Roadmap
+				</h3>
+				<span
+					class='rounded-full bg-amber-600/10 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/25 dark:text-amber-300'
+				>
+					TODO
+				</span>
+			</div>
+			<div class='grid gap-4 sm:grid-cols-3'>
+				{
+					musicRoadmap.map((item) => (
+						<div class='flex flex-col gap-y-2 rounded-2xl border border-border bg-card p-5'>
+							<span class='w-fit rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground'>
+								{item.status}
+							</span>
+							<h4 class='font-display text-lg font-medium tracking-tight'>{item.title}</h4>
+							<p class='text-sm text-muted-foreground'>{item.detail}</p>
+						</div>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<!-- ─── Software ──────────────────────────────────────────────────────────── -->
+	<section id='software' class='mt-16 border-t border-border pt-14'>
+		<div class='mb-6 flex flex-col gap-y-1.5'>
+			<h2 class='font-display text-2xl font-medium tracking-tight'>Software</h2>
+			<p class='text-sm text-muted-foreground'>
+				Side projects, tools, and things I've shipped outside of work.
+			</p>
+		</div>
+		{
+			softwareProjects.length === 0 ? (
+				<div class='rounded-2xl border border-dashed border-border p-8 text-center'>
+					<p class='text-muted-foreground'>
+						No software projects listed yet. Add entries to the{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
+							softwareProjects
+						</code>{' '}
+						array in{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
+							src/pages/projects.astro
+						</code>
+						.
+					</p>
+				</div>
+			) : (
+				<div class='grid gap-4 sm:grid-cols-2'>
+					{softwareProjects.map((project) => (
+						<ProjectEntry {...project} />
+					))}
+				</div>
+			)
+		}
+	</section>
+
+	<!-- ─── Fitness ───────────────────────────────────────────────────────────── -->
+	<section id='fitness' class='mt-16 border-t border-border pt-14'>
+		<div class='mb-6 flex flex-col gap-y-1.5'>
+			<h2 class='font-display text-2xl font-medium tracking-tight'>Fitness</h2>
+			<p class='text-sm text-muted-foreground'>
+				Climbing sends, PRs, and milestones worth logging.
+			</p>
+		</div>
+		{
+			fitnessProjects.length === 0 ? (
+				<div class='rounded-2xl border border-dashed border-border p-8 text-center'>
+					<p class='text-muted-foreground'>
+						No fitness milestones logged yet. Add entries to the{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
+							fitnessProjects
+						</code>{' '}
+						array in{' '}
+						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
+							src/pages/projects.astro
+						</code>
+						.
+					</p>
+				</div>
+			) : (
+				<div class='grid gap-4 sm:grid-cols-2'>
+					{fitnessProjects.map((project) => (
+						<ProjectEntry {...project} />
+					))}
+				</div>
+			)
+		}
+	</section>
+</PageLayout>
