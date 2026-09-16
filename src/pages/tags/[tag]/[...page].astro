@@ -35,10 +35,16 @@ async function paginateOnDemand(): Promise<Page<CollectionEntry<'blog'>> | undef
 	const posts = sortMDByDate(await getAllPosts()).filter((post) => post.data.tags.includes(tag))
 	if (posts.length === 0) return undefined
 
-	// `/tags/astro` is page 1; `/tags/astro/2` and beyond carry the number.
-	const requested = Astro.params.page ? Number(Astro.params.page) : 1
+	// `/tags/astro` is page 1; `/tags/astro/2` and beyond carry the number. Page 1
+	// exists only at the bare URL, and comparing the number back against the text
+	// rejects spellings the static build would never emit — `/01`, `/1.0`, `/0x2`,
+	// `/ 2 ` — so they don't turn into duplicate pages.
+	const param = Astro.params.page || undefined
+	const requested = param === undefined ? 1 : Number(param)
+	if (param !== undefined && (String(requested) !== param || requested < 2)) return undefined
+
 	const lastPage = Math.ceil(posts.length / TAG_PAGE_SIZE)
-	if (!Number.isInteger(requested) || requested < 1 || requested > lastPage) return undefined
+	if (requested > lastPage) return undefined
 
 	const start = (requested - 1) * TAG_PAGE_SIZE
 	const data = posts.slice(start, start + TAG_PAGE_SIZE)

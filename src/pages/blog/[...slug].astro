@@ -1,6 +1,6 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
-import { getEntry, render } from 'astro:content'
+import { render } from 'astro:content'
 
 import PostLayout from '@/layouts/BlogPost.astro'
 import { getAllPosts } from '@/utils'
@@ -18,7 +18,10 @@ export const getStaticPaths = (async () => {
 type Props = Partial<InferGetStaticPropsType<typeof getStaticPaths>>
 
 // Prerendered builds pass the post in as a prop; on-demand builds look it up.
-const post = Astro.props.post ?? (await getEntry('blog', Astro.params.slug ?? ''))
+// The lookup goes through getAllPosts so that drafts stay hidden in production —
+// getEntry would happily serve one by its direct URL.
+const post =
+	Astro.props.post ?? (await getAllPosts()).find((entry) => entry.id === Astro.params.slug)
 if (!post) return Astro.rewrite('/404')
 
 const { Content } = await render(post)
