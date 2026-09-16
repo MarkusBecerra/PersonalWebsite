@@ -20,6 +20,9 @@ if (!isSiteLocked()) return Astro.redirect('/', 302)
 if (await isUnlocked(Astro.cookies.get(UNLOCK_COOKIE)?.value)) return Astro.redirect(next, 302)
 
 const failed = Astro.url.searchParams.get('error') === '1'
+
+// First name only — the page is meant to read like a note, not a masthead.
+const firstName = siteConfig.author.split(' ')[0]
 ---
 
 <html lang={siteConfig.lang}>
@@ -53,7 +56,7 @@ const failed = Astro.url.searchParams.get('error') === '1'
 				</h1>
 
 				<p class='mt-3 text-sm leading-relaxed text-muted-foreground'>
-					{siteConfig.author} is still building this one. If you have the password, come on in — otherwise
+					{firstName} is still building this one. If you have the password, come on in — otherwise
 					check back soon.
 				</p>
 
