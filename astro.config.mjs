@@ -10,6 +10,13 @@ import { expressiveCodeOptions } from './src/site.config'
 import icon from 'astro-icon'
 
 import vercel from '@astrojs/vercel'
+import { isSiteLocked } from './src/site-lock'
+
+// While the site is locked, every page has to be rendered on demand so that the
+// middleware in src/middleware.ts can gate it — prerendered pages are served
+// straight off Vercel's filesystem and never reach middleware. Setting
+// SITE_LOCKED=false restores the fully static build.
+const locked = isSiteLocked()
 
 // https://astro.build/config
 export default defineConfig({
@@ -19,7 +26,8 @@ export default defineConfig({
 		tailwind({
 			applyBaseStyles: false
 		}),
-		sitemap(),
+		// No point advertising pages nobody can read yet.
+		...(locked ? [] : [sitemap()]),
 		mdx(),
 		icon()
 	],
@@ -41,7 +49,7 @@ export default defineConfig({
 		}
 	},
 	prefetch: true,
-	output: 'static',
+	output: locked ? 'server' : 'static',
 	adapter: vercel({
 		webAnalytics: { enabled: true }
 	})

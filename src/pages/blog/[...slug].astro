@@ -1,12 +1,12 @@
 ---
-export const prerender = true
-
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
-import { render } from 'astro:content'
+import { getEntry, render } from 'astro:content'
 
 import PostLayout from '@/layouts/BlogPost.astro'
 import { getAllPosts } from '@/utils'
 
+// Used when the site is public and every post is prerendered. While the site is
+// locked the build renders on demand instead, and Astro ignores this.
 export const getStaticPaths = (async () => {
 	const posts = await getAllPosts()
 	return posts.map((post) => ({
@@ -15,9 +15,12 @@ export const getStaticPaths = (async () => {
 	}))
 }) satisfies GetStaticPaths
 
-type Props = InferGetStaticPropsType<typeof getStaticPaths>
+type Props = Partial<InferGetStaticPropsType<typeof getStaticPaths>>
 
-const { post } = Astro.props
+// Prerendered builds pass the post in as a prop; on-demand builds look it up.
+const post = Astro.props.post ?? (await getEntry('blog', Astro.params.slug ?? ''))
+if (!post) return Astro.rewrite('/404')
+
 const { Content } = await render(post)
 ---
 
