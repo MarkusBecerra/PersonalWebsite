@@ -12,7 +12,10 @@ export const siteConfig: SiteConfig = {
 		options: {
 			day: 'numeric',
 			month: 'short',
-			year: 'numeric'
+			year: 'numeric',
+			// Frontmatter dates are parsed as UTC midnight; format them in UTC too, or
+			// every post shows up a day early for anyone west of Greenwich.
+			timeZone: 'UTC'
 		}
 	}
 }
