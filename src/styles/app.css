@@ -102,6 +102,12 @@
 	.link {
 		@apply underline decoration-foreground/50 decoration-1 underline-offset-4 transition-colors hover:text-brand hover:decoration-brand dark:decoration-foreground/40;
 	}
+	/* Header nav underline: a moss rule that draws in from the left on hover and
+	   stays drawn on the current page. */
+	.nav-link::after {
+		content: '';
+		@apply absolute inset-x-1 bottom-1.5 h-0.5 origin-left scale-x-0 rounded-full bg-brand transition-transform duration-300 ease-out;
+	}
 	/* Inline code in prose: a quiet paper chip, same weight as the text around it. */
 	.prose :where(:not(pre) > code):not(:where([class~='not-prose'] *)) {
 		@apply rounded-sm bg-[hsl(var(--code))] px-[0.3em] py-[0.1em] text-[0.875em] font-normal;
