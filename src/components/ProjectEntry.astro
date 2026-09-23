@@ -22,7 +22,7 @@ const { title, description, tags = [], links = [], badge } = Astro.props
 			<p class='flex flex-wrap gap-x-5 pt-1 text-sm'>
 				{links.map((link) => (
 					<a href={link.href} target='_blank' rel='noopener noreferrer' class='link'>
-						{link.label} ↗
+						{link.label} ↗<span class='sr-only'> (opens in new tab)</span>
 					</a>
 				))}
 			</p>
