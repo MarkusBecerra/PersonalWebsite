@@ -4,6 +4,7 @@ import { render } from 'astro:content'
 
 import BlogHero from '@/components/blog/Hero.astro'
 import TOC from '@/components/blog/TOC.astro'
+import { getAllPosts, sortMDByDate } from '@/utils'
 
 import PageLayout from './BaseLayout.astro'
 
@@ -20,6 +21,15 @@ const {
 const socialImage = ogImage ?? `/og-image/${id}.png`
 const articleDate = updatedDate?.toISOString() ?? pubDate.toISOString()
 const { headings } = await render(post)
+
+// Neighbours in the same newest-first order the blog index uses, so a reader who
+// finishes a post has somewhere to go besides the footer.
+const ordered = sortMDByDate(await getAllPosts())
+const index = ordered.findIndex((entry) => entry.id === id)
+const neighbours = [
+	{ label: 'Newer', entry: index > 0 ? ordered[index - 1] : undefined },
+	{ label: 'Older', entry: index >= 0 ? ordered[index + 1] : undefined }
+].flatMap(({ label, entry }) => (entry ? [{ label, entry }] : []))
 ---
 
 <PageLayout meta={{ articleDate, description, ogImage: socialImage, title }}>
@@ -32,7 +42,7 @@ const { headings } = await render(post)
 			<article class='min-w-0 flex-grow break-words' data-pagefind-body>
 				<div id='blog-hero'><BlogHero content={post} /></div>
 				<div
-					class='prose prose-stone mt-10 max-w-none border-t border-border pt-10 text-foreground dark:prose-invert sm:prose-lg prose-headings:font-display prose-headings:font-normal prose-headings:tracking-tight prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-brand prose-a:decoration-brand/40 prose-a:underline-offset-4 hover:prose-a:decoration-brand prose-strong:text-foreground prose-code:text-foreground prose-code:before:content-none prose-code:after:content-none'
+					class='prose prose-stone mt-10 max-w-none border-t border-border pt-10 text-foreground dark:prose-invert sm:prose-lg prose-headings:font-display prose-headings:font-normal prose-headings:tracking-tight prose-headings:text-foreground prose-p:text-foreground prose-a:text-brand prose-a:decoration-brand/40 prose-a:underline-offset-4 hover:prose-a:decoration-brand prose-strong:text-foreground prose-code:text-foreground prose-code:before:content-none prose-code:after:content-none'
 				>
 					<slot />
 				</div>
@@ -42,6 +52,29 @@ const { headings } = await render(post)
 			}
 			{!!headings.length && <TOC headings={headings} />}
 		</div>
+
+		<nav class='mt-16 border-t border-border' aria-label='More writing'>
+			<ul class='divide-y divide-border'>
+				{
+					neighbours.map(({ label, entry }) => (
+						<li>
+							<a
+								href={`/blog/${entry.id}/`}
+								class='group grid gap-y-1 py-4 sm:grid-cols-[9rem_1fr] sm:items-baseline sm:gap-x-6'
+							>
+								<span class='font-display text-sm italic text-muted-foreground'>{label}</span>
+								<span class='font-display text-xl leading-snug tracking-tight transition-colors group-hover:text-brand'>
+									{entry.data.title}
+								</span>
+							</a>
+						</li>
+					))
+				}
+				<li class='py-4'>
+					<a href='/blog' class='link text-sm'>All writing</a>
+				</li>
+			</ul>
+		</nav>
 
 		<button
 			aria-label='Back to top'
