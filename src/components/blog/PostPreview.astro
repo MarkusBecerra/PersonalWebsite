@@ -17,22 +17,22 @@ const postDate = post.data.updatedDate ?? post.data.pubDate
 <a
 	data-astro-prefetch
 	href={`/blog/${post.id}/`}
-	class='group -mx-4 flex flex-col gap-y-2 rounded-2xl px-4 py-4 transition-colors hover:bg-secondary/60'
+	class='group grid gap-y-1.5 py-5 sm:grid-cols-[9rem_1fr] sm:gap-x-6'
 >
-	<div class='flex items-center gap-x-3 text-xs text-muted-foreground'>
-		<FormattedDate date={postDate} />
-		<span class='h-1 w-1 rounded-full bg-border'></span>
-		<CategoryBadge category={post.data.category} />
-		{post.data.draft && <span class='font-medium text-destructive'>Draft</span>}
+	<FormattedDate class='pt-1 text-sm tabular-nums text-muted-foreground' date={postDate} />
+
+	<div class='flex flex-col gap-y-1.5'>
+		<Tag
+			class='font-display text-xl leading-snug tracking-tight transition-colors group-hover:text-brand'
+		>
+			{post.data.title}
+		</Tag>
+
+		{withDesc && <p class='line-clamp-2 text-muted-foreground'>{post.data.description}</p>}
+
+		<div class='flex items-center gap-x-3 text-xs'>
+			<CategoryBadge category={post.data.category} />
+			{post.data.draft && <span class='font-medium text-destructive'>Draft</span>}
+		</div>
 	</div>
-
-	<Tag class='text-lg font-medium tracking-tight transition-colors group-hover:text-brand'>
-		{post.data.title}
-	</Tag>
-
-	{
-		withDesc && (
-			<p class='line-clamp-2 text-sm text-muted-foreground'>{post.data.description}</p>
-		)
-	}
 </a>

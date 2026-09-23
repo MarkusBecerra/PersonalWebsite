@@ -12,115 +12,84 @@ const pillars = [
 	{
 		title: 'Engineering',
 		blurb: 'Software I design and ship — systems, side projects, and notes from the build.',
-		href: '/blog',
-		accent: 'from-slate-500/15 to-slate-500/0',
-		icon: 'M8 9l3 3l-3 3m5 0h3M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z'
+		href: '/blog'
 	},
 	{
 		title: 'Projects',
-		blurb: 'Music mixes, software side projects, and fitness milestones — a catalogue of everything I\'m building.',
-		href: '/projects',
-		accent: 'from-blue-500/15 to-blue-500/0',
-		icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'
+		blurb:
+			"Music mixes, software side projects, and fitness milestones — a catalogue of everything I'm building.",
+		href: '/projects'
 	},
 	{
 		title: 'Recreation',
 		blurb: 'Climbing, bouldering, and time outside — chasing the next problem and the light.',
-		href: '/blog',
-		accent: 'from-slate-500/15 to-slate-500/0',
-		icon: 'M3 20h18M5 20l5.5-9l3 4l2-3L21 20M7 7a2 2 0 1 0 0-4a2 2 0 0 0 0 4Z'
+		href: '/blog'
 	}
 ]
 ---
 
 <PageLayout meta={{ title: 'Home' }}>
-	<!-- Hero -->
-	<section class='flex flex-col gap-y-4 pb-4'>
-
-		<h1 class='font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl'>
-			Hi, I’m Markus — I build<br class='hidden sm:block' />
-			<span class='text-sunset'>software, sound & scrambles.</span>
+	<!-- Intro -->
+	<section class='flex flex-col gap-y-6'>
+		<h1 class='font-display text-4xl leading-[1.12] tracking-tight sm:text-5xl'>
+			Hi, I’m Markus. I build software, sound <span class='italic text-brand'>& scrambles.</span>
 		</h1>
 
 		<p class='max-w-xl text-lg text-muted-foreground'>
-			Engineer by trade, DJ by night, climber by weekend. This is where I keep notes on what
-			I’m building, mixing, and climbing — written in the spirit of golden hour.
+			Engineer by trade, DJ by night, climber by weekend. This is where I keep notes on what I’m
+			building, mixing, and climbing.
 		</p>
 
-		<div class='flex flex-wrap items-center gap-3 pt-1'>
-			<a
-				href='/blog'
-				class='inline-flex items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
-			>
-				Read the blog
-				<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
-					<path fill='currentColor' d='M5 12h13m0 0l-5-5m5 5l-5 5' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill-opacity='0'/>
-				</svg>
-			</a>
-			<a
-				href='mailto:markusbecerra@gmail.com'
-				class='inline-flex items-center rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-secondary'
-			>
-				Get in touch
-			</a>
-		</div>
+		<p class='flex flex-wrap gap-x-6 gap-y-2'>
+			<a href='/blog' class='link'>Read the blog</a>
+			<a href='mailto:markusbecerra@gmail.com' class='link'>Say hello</a>
+		</p>
 	</section>
 
 	<!-- Three pillars -->
-	<section class='mt-16'>
-		<h2 class='mb-5 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
-			What I’m into
-		</h2>
-		<div class='grid gap-4 sm:grid-cols-3'>
+	<section class='mt-20'>
+		<h2 class='section-title'>What I’m into</h2>
+		<ul class='divide-y divide-border'>
 			{
 				pillars.map((p) => (
-					<a
-						href={p.href}
-						class='group relative flex flex-col gap-y-3 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-1 hover:border-brand/40'
-					>
-						<div class:list={['pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100', p.accent]} />
-						<span class='relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-brand'>
-							<svg class='h-5 w-5' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'>
-								<path d={p.icon} />
-							</svg>
-						</span>
-						<h3 class='relative font-display text-xl font-medium tracking-tight'>{p.title}</h3>
-						<p class='relative text-sm text-muted-foreground'>{p.blurb}</p>
-						<span class='relative mt-1 inline-flex items-center gap-x-1 text-sm font-medium text-brand'>
-							Explore
-							<svg class='h-4 w-4 transition-transform group-hover:translate-x-0.5' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
-								<path d='M5 12h14m0 0l-6-6m6 6l-6 6' />
-							</svg>
-						</span>
-					</a>
+					<li>
+						<a
+							href={p.href}
+							class='group grid gap-y-1 py-5 sm:grid-cols-[9rem_1fr_auto] sm:items-baseline sm:gap-x-6'
+						>
+							<h3 class='font-display text-xl tracking-tight transition-colors group-hover:text-brand'>
+								{p.title}
+							</h3>
+							<p class='text-muted-foreground'>{p.blurb}</p>
+							<span
+								class='hidden text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-brand sm:block'
+								aria-hidden='true'
+							>
+								→
+							</span>
+						</a>
+					</li>
 				))
 			}
-		</div>
+		</ul>
 	</section>
 
 	<!-- Latest posts -->
-	<section class='mt-16'>
-		<div class='mb-3 flex items-baseline justify-between'>
-			<h2 class='text-sm font-medium uppercase tracking-widest text-muted-foreground'>
-				Latest posts
-			</h2>
-			<a href='/blog' class='text-sm text-muted-foreground transition-colors hover:text-foreground'>
-				View all →
-			</a>
-		</div>
+	<section class='mt-20'>
+		<h2 class='section-title'>Latest writing</h2>
 
 		{
 			latestPosts.length === 0 ? (
-				<p class='rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground'>
-					No posts yet — the first one is brewing.
-				</p>
+				<p class='py-5 italic text-muted-foreground'>No posts yet — the first one is brewing.</p>
 			) : (
-				<div class='flex flex-col divide-y divide-border'>
+				<div class='divide-y divide-border'>
 					{latestPosts.map((p) => (
 						<PostPreview as='h3' post={p} withDesc />
 					))}
 				</div>
 			)
 		}
+
+		<a href='/blog' class='link mt-4 inline-block text-sm text-muted-foreground'>All writing</a>
 	</section>
 </PageLayout>

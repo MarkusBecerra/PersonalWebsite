@@ -6,24 +6,8 @@ import PageLayout from '@/layouts/BaseLayout.astro'
 	<script>
 		window.location.replace('/projects/#music')
 	</script>
-	<section class='flex flex-col items-center gap-y-4 py-20 text-center'>
+	<section class='flex flex-col gap-y-3 py-12'>
 		<p class='text-muted-foreground'>The music section has moved.</p>
-		<a
-			href='/projects/#music'
-			class='inline-flex items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
-		>
-			Go to Projects → Music
-			<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
-				<path
-					fill='currentColor'
-					d='M5 12h13m0 0l-5-5m5 5l-5 5'
-					stroke='currentColor'
-					stroke-width='2'
-					stroke-linecap='round'
-					stroke-linejoin='round'
-					fill-opacity='0'
-				></path>
-			</svg>
-		</a>
+		<a href='/projects/#music' class='link w-fit'>Go to Projects → Music</a>
 	</section>
 </PageLayout>

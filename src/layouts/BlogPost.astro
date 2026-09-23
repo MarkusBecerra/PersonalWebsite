@@ -24,16 +24,8 @@ const { headings } = await render(post)
 
 <PageLayout meta={{ articleDate, description, ogImage: socialImage, title }}>
 	<div class='w-full'>
-		<a
-			href='/blog'
-			class='inline-flex items-center gap-x-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground'
-		>
-			<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
-				<path
-					fill='currentColor'
-					d='m6.921 12.5l5.792 5.792L12 19l-7-7l7-7l.713.708L6.921 11.5H19v1z'></path>
-			</svg>
-			All posts
+		<a href='/blog' class='text-sm text-muted-foreground transition-colors hover:text-foreground'>
+			← All writing
 		</a>
 
 		<div class='mt-8 gap-x-10 lg:flex lg:items-start'>
@@ -41,7 +33,7 @@ const { headings } = await render(post)
 			<article class='min-w-0 flex-grow break-words' data-pagefind-body>
 				<div id='blog-hero'><BlogHero content={post} /></div>
 				<div
-					class='prose prose-zinc mt-10 max-w-none border-t border-border pt-10 dark:prose-invert prose-headings:font-display prose-headings:font-medium prose-headings:text-foreground prose-a:text-brand prose-a:no-underline hover:prose-a:underline'
+					class='prose prose-stone mt-10 max-w-none border-t border-border pt-10 text-foreground dark:prose-invert sm:prose-lg prose-headings:font-display prose-headings:font-normal prose-headings:tracking-tight prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-brand prose-a:decoration-brand/40 prose-a:underline-offset-4 hover:prose-a:decoration-brand prose-strong:text-foreground prose-code:text-foreground prose-code:before:content-none prose-code:after:content-none'
 				>
 					<slot />
 				</div>
@@ -50,7 +42,7 @@ const { headings } = await render(post)
 
 		<button
 			aria-label='Back to top'
-			class='fixed bottom-8 end-6 z-40 flex h-11 w-11 translate-y-28 items-center justify-center rounded-full border border-border bg-card text-foreground opacity-0 shadow-soft transition-all duration-300 hover:bg-secondary data-[show=true]:translate-y-0 data-[show=true]:opacity-100'
+			class='fixed bottom-8 end-6 z-40 flex h-10 w-10 translate-y-28 items-center justify-center rounded-full border border-border bg-background text-muted-foreground opacity-0 transition-all duration-300 hover:text-foreground data-[show=true]:translate-y-0 data-[show=true]:opacity-100'
 			data-show='false'
 			id='to-top-btn'
 		>

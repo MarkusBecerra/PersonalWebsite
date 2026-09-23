@@ -6,28 +6,21 @@ const isActive = (path: string) =>
 	path === '/' ? pathname === '/' : pathname.startsWith(path.replace(/\/$/, ''))
 ---
 
-<header class='mb-16 flex w-full items-center justify-between py-2'>
-	<a
-		class='group flex items-center gap-x-2.5 font-display text-xl font-medium tracking-tight'
-		href='/'
-		aria-label={siteConfig.author}
-	>
-		<span
-			class='inline-block h-3 w-3 rounded-full bg-sunset shadow-[0_0_0_4px_hsl(var(--brand)/0.12)] transition-transform duration-300 group-hover:scale-125'
-		></span>
+<header class='mb-16 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 sm:mb-24'>
+	<a class='font-display text-xl tracking-tight transition-colors hover:text-brand' href='/'>
 		{siteConfig.author}
 	</a>
 
-	<nav class='flex items-center gap-x-1 sm:gap-x-2' aria-label='Primary'>
+	<nav class='-mx-1 flex items-center gap-x-4 text-[0.95rem] sm:gap-x-5' aria-label='Primary'>
 		{
 			menuLinks.map((link) => (
 				<a
 					href={link.path}
 					class:list={[
-						'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+						'px-1 underline-offset-[6px] transition-colors',
 						isActive(link.path)
-							? 'bg-secondary text-foreground'
-							: 'text-muted-foreground hover:bg-secondary/70 hover:text-foreground'
+							? 'text-foreground underline decoration-brand decoration-2'
+							: 'text-muted-foreground hover:text-foreground'
 					]}
 					aria-current={isActive(link.path) ? 'page' : undefined}
 				>
@@ -38,17 +31,23 @@ const isActive = (path: string) =>
 
 		<button
 			id='toggleDarkMode'
-			class='ml-1 flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground'
+			class='flex h-8 w-8 translate-y-[3px] items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground'
 			aria-label='Toggle color theme'
 		>
 			<span class='sr-only'>Toggle theme</span>
-			<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='h-[1.1rem] w-[1.1rem] dark:hidden'
+			<svg
+				xmlns='http://www.w3.org/2000/svg'
+				viewBox='0 0 24 24'
+				class='h-[1.1rem] w-[1.1rem] dark:hidden'
 				><path
 					fill='currentColor'
 					d='M12 15q1.25 0 2.125-.875T15 12q0-1.25-.875-2.125T12 9q-1.25 0-2.125.875T9 12q0 1.25.875 2.125T12 15m0 1q-1.671 0-2.836-1.164T8 12q0-1.671 1.164-2.836T12 8q1.671 0 2.836 1.164T16 12q0 1.671-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.744l2.111 2.134zM18.72 19.438l-2.117-2.14l.652-.702l2.16 2.098zM16.596 6.746l2.098-2.16l.744.695l-2.134 2.111zM4.562 18.72l2.14-2.117l.663.652l-2.078 2.179zM12 12'
 				></path></svg
 			>
-			<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='hidden h-[1.1rem] w-[1.1rem] dark:block'
+			<svg
+				xmlns='http://www.w3.org/2000/svg'
+				viewBox='0 0 24 24'
+				class='hidden h-[1.1rem] w-[1.1rem] dark:block'
 				><path
 					fill='currentColor'
 					d='M12.058 20q-3.334 0-5.667-2.333Q4.058 15.333 4.058 12q0-3.038 1.98-5.27Q8.02 4.5 10.942 4.097q.081 0 .159.006t.153.017q-.506.706-.801 1.57q-.295.865-.295 1.811q0 2.667 1.866 4.533q1.867 1.867 4.534 1.867q.952 0 1.813-.295q.862-.295 1.548-.801q.012.075.018.153q.005.078.005.158q-.384 2.923-2.615 4.904T12.057 20'

@@ -4,7 +4,8 @@ import ProjectEntry from '@/components/ProjectEntry.astro'
 
 const meta = {
 	title: 'Projects',
-	description: 'Music mixes, software side projects, fitness milestones — everything I\'m building outside work.'
+	description:
+		"Music mixes, software side projects, fitness milestones — everything I'm building outside work."
 }
 
 // ─── MUSIC ────────────────────────────────────────────────────────────────────
@@ -82,134 +83,104 @@ const fitnessProjects: Array<{
 ---
 
 <PageLayout meta={meta}>
-	<!-- Hero -->
-	<section class='flex flex-col gap-y-3'>
-		<span class='text-sm font-medium uppercase tracking-widest text-brand'>Projects</span>
-		<h1 class='font-display text-4xl font-medium tracking-tight sm:text-5xl'>
-			Things I'm building, mixing & tracking.
+	<section class='flex flex-col gap-y-4'>
+		<h1 class='font-display text-4xl tracking-tight sm:text-5xl'>
+			Things I’m building, mixing & tracking.
 		</h1>
 		<p class='max-w-xl text-lg text-muted-foreground'>
-			A running catalogue of what I'm working on — music, software, and fitness milestones. Each
-			category lives in its own section below.
+			A running catalogue of what I’m working on outside of work — music, software, and fitness
+			milestones.
 		</p>
+		<nav class='flex gap-x-5 text-sm text-muted-foreground' aria-label='Project sections'>
+			<a href='#music' class='link'>Music</a>
+			<a href='#software' class='link'>Software</a>
+			<a href='#fitness' class='link'>Fitness</a>
+		</nav>
 	</section>
 
 	<!-- ─── Music ─────────────────────────────────────────────────────────────── -->
-	<section id='music' class='mt-14'>
-		<div class='mb-6 flex flex-col gap-y-1.5'>
-			<h2 class='font-display text-2xl font-medium tracking-tight'>Music</h2>
-			<p class='text-sm text-muted-foreground'>
-				Mostly SoundCloud — the mixes I make, the sets I play, and what I'm reposting and loving.
-				A proper concert log is on the way.
-			</p>
+	<section id='music' class='mt-16 scroll-mt-8'>
+		<h2 class='section-title'>Music</h2>
+		<p class='mt-4 text-muted-foreground'>
+			Mostly SoundCloud — the mixes I make, the sets I play, and what I’m reposting and loving. A
+			proper concert log is on the way.{' '}
 			<a
 				href={soundcloudProfile}
 				target='_blank'
 				rel='noopener noreferrer'
-				class='mt-1 inline-flex w-fit items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
+				class='link text-foreground'
 			>
 				Follow on SoundCloud
-				<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
-					<path
-						fill='currentColor'
-						d='M5 12h13m0 0l-5-5m5 5l-5 5'
-						stroke='currentColor'
-						stroke-width='2'
-						stroke-linecap='round'
-						stroke-linejoin='round'
-						fill-opacity='0'
-					></path>
-				</svg>
 			</a>
-		</div>
+		</p>
 
-		<h3 class='mb-3 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
-			Latest mixes
-		</h3>
 		{
 			mixes.length === 0 ? (
-				<div class='rounded-2xl border border-dashed border-border p-8 text-center'>
-					<p class='text-muted-foreground'>
-						No mixes embedded yet. Paste a SoundCloud embed URL into the{' '}
-						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>mixes</code> array
-						in{' '}
-						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
-							src/pages/projects.astro
-						</code>
-						.
-					</p>
-				</div>
+				<p class='py-5 italic text-muted-foreground'>
+					No mixes embedded yet. Paste a SoundCloud embed URL into the{' '}
+					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
+						mixes
+					</code>{' '}
+					array in{' '}
+					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
+						src/pages/projects.astro
+					</code>
+					.
+				</p>
 			) : (
-				<div class='flex flex-col gap-y-4'>
+				<div class='mt-6 flex flex-col gap-y-4'>
 					{mixes.map((mix) => (
-						<div class='overflow-hidden rounded-2xl border border-border bg-card shadow-soft'>
-							<iframe
-								title={mix.title}
-								width='100%'
-								height='166'
-								class='block border-0'
-								allow='autoplay'
-								loading='lazy'
-								src={mix.embedUrl}
-							/>
-						</div>
+						<iframe
+							title={mix.title}
+							width='100%'
+							height='166'
+							class='block rounded-md border-0'
+							allow='autoplay'
+							loading='lazy'
+							src={mix.embedUrl}
+						/>
 					))}
 				</div>
 			)
 		}
 
-		<div class='mt-10'>
-			<div class='mb-4 flex items-center gap-x-2'>
-				<h3 class='text-sm font-medium uppercase tracking-widest text-muted-foreground'>
-					Roadmap
-				</h3>
-				<span
-					class='rounded-full bg-amber-600/10 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/25 dark:text-amber-300'
-				>
-					TODO
-				</span>
-			</div>
-			<div class='grid gap-4 sm:grid-cols-3'>
-				{
-					musicRoadmap.map((item) => (
-						<div class='flex flex-col gap-y-2 rounded-2xl border border-border bg-card p-5'>
-							<span class='w-fit rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground'>
-								{item.status}
-							</span>
-							<h4 class='font-display text-lg font-medium tracking-tight'>{item.title}</h4>
-							<p class='text-sm text-muted-foreground'>{item.detail}</p>
+		<h3 class='mt-8 font-display text-lg italic text-muted-foreground'>Coming up</h3>
+		<ul class='mt-2 divide-y divide-border'>
+			{
+				musicRoadmap.map((item) => (
+					<li class='grid gap-y-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-x-6'>
+						<span class='pt-0.5 text-sm text-muted-foreground'>{item.status}</span>
+						<div>
+							<h4 class='font-medium'>{item.title}</h4>
+							<p class='text-muted-foreground'>{item.detail}</p>
 						</div>
-					))
-				}
-			</div>
-		</div>
+					</li>
+				))
+			}
+		</ul>
 	</section>
 
 	<!-- ─── Software ──────────────────────────────────────────────────────────── -->
-	<section id='software' class='mt-16 border-t border-border pt-14'>
-		<div class='mb-6 flex flex-col gap-y-1.5'>
-			<h2 class='font-display text-2xl font-medium tracking-tight'>Software</h2>
-			<p class='text-sm text-muted-foreground'>
-				Side projects, tools, and things I've shipped outside of work.
-			</p>
-		</div>
+	<section id='software' class='mt-16 scroll-mt-8'>
+		<h2 class='section-title'>Software</h2>
+		<p class='mt-4 text-muted-foreground'>
+			Side projects, tools, and things I’ve shipped outside of work.
+		</p>
 		{
 			softwareProjects.length === 0 ? (
-				<div class='rounded-2xl border border-dashed border-border p-8 text-center'>
-					<p class='text-muted-foreground'>
-						No software projects listed yet. Add entries to the{' '}
-						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
-							softwareProjects
-						</code>{' '}
-						array in{' '}
-						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
-							src/pages/projects.astro
-						</code>
-						.
-					</p>
-				</div>
+				<p class='py-5 italic text-muted-foreground'>
+					No software projects listed yet. Add entries to the{' '}
+					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
+						softwareProjects
+					</code>{' '}
+					array in
+					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
+						src/pages/projects.astro
+					</code>
+					.
+				</p>
 			) : (
-				<div class='grid gap-4 sm:grid-cols-2'>
+				<div class='mt-2 divide-y divide-border'>
 					{softwareProjects.map((project) => (
 						<ProjectEntry {...project} />
 					))}
@@ -219,30 +190,24 @@ const fitnessProjects: Array<{
 	</section>
 
 	<!-- ─── Fitness ───────────────────────────────────────────────────────────── -->
-	<section id='fitness' class='mt-16 border-t border-border pt-14'>
-		<div class='mb-6 flex flex-col gap-y-1.5'>
-			<h2 class='font-display text-2xl font-medium tracking-tight'>Fitness</h2>
-			<p class='text-sm text-muted-foreground'>
-				Climbing sends, PRs, and milestones worth logging.
-			</p>
-		</div>
+	<section id='fitness' class='mt-16 scroll-mt-8'>
+		<h2 class='section-title'>Fitness</h2>
+		<p class='mt-4 text-muted-foreground'>Climbing sends, PRs, and milestones worth logging.</p>
 		{
 			fitnessProjects.length === 0 ? (
-				<div class='rounded-2xl border border-dashed border-border p-8 text-center'>
-					<p class='text-muted-foreground'>
-						No fitness milestones logged yet. Add entries to the{' '}
-						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
-							fitnessProjects
-						</code>{' '}
-						array in{' '}
-						<code class='rounded bg-secondary px-1.5 py-0.5 font-mono text-xs'>
-							src/pages/projects.astro
-						</code>
-						.
-					</p>
-				</div>
+				<p class='py-5 italic text-muted-foreground'>
+					No fitness milestones logged yet. Add entries to the{' '}
+					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
+						fitnessProjects
+					</code>{' '}
+					array in
+					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
+						src/pages/projects.astro
+					</code>
+					.
+				</p>
 			) : (
-				<div class='grid gap-4 sm:grid-cols-2'>
+				<div class='mt-2 divide-y divide-border'>
 					{fitnessProjects.map((project) => (
 						<ProjectEntry {...project} />
 					))}

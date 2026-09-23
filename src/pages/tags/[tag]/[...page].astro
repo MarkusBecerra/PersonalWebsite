@@ -5,7 +5,6 @@ import type { CollectionEntry } from 'astro:content'
 import Pagination from '@/components/Paginator.astro'
 import PostPreview from '@/components/blog/PostPreview.astro'
 import PageLayout from '@/layouts/BaseLayout.astro'
-import Button from '@/components/Button.astro'
 import { TAG_PAGE_SIZE, getAllPosts, getUniqueTags, sortMDByDate } from '@/utils'
 
 // Used when the site is public and every tag page is prerendered. While the site
@@ -94,27 +93,14 @@ const paginationProps = {
 
 <PageLayout meta={meta}>
 	<div class='w-full'>
-		<Button title='Back' href='/blog' style='button'>
-			<svg
-				xmlns='http://www.w3.org/2000/svg'
-				width='14'
-				height='14'
-				viewBox='0 0 24 24'
-				slot='icon-before'
-			>
-				<path
-					fill='currentColor'
-					d='m6.921 12.5l5.792 5.792L12 19l-7-7l7-7l.713.708L6.921 11.5H19v1z'
-				>
-				</path>
-			</svg>
-		</Button>
-		<h1 class='mb-6 mt-5 flex items-end gap-x-2 text-2xl font-bold'>
-			Tags:
-			<span class='text-xl'>#{tag}</span>
+		<a href='/blog' class='text-sm text-muted-foreground transition-colors hover:text-foreground'>
+			← All writing
+		</a>
+		<h1 class='mb-8 mt-6 font-display text-4xl tracking-tight'>
+			<span class='italic text-muted-foreground'>Tagged</span> #{tag}
 		</h1>
 		<section aria-label='Blog post list'>
-			<div class='flex flex-col divide-y divide-border'>
+			<div class='divide-y divide-border border-t border-border'>
 				{page.data.map((p) => <PostPreview as='h2' post={p} withDesc />)}
 			</div>
 			<Pagination {...paginationProps} />

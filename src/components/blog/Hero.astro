@@ -17,14 +17,15 @@ const { remarkPluginFrontmatter } = await render(content)
 
 <div class='flex flex-col gap-y-4'>
 	<div class='flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground'>
-		<CategoryBadge category={data.category} />
 		<FormattedDate date={data.pubDate} />
-		<span class='h-1 w-1 rounded-full bg-border'></span>
+		<span aria-hidden='true'>·</span>
 		<span>{remarkPluginFrontmatter.minutesRead}</span>
+		<span aria-hidden='true'>·</span>
+		<CategoryBadge category={data.category} />
 		{data.draft && <span class='font-medium text-destructive'>Draft</span>}
 	</div>
 
-	<h1 class='font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl'>
+	<h1 class='font-display text-4xl leading-tight tracking-tight sm:text-5xl'>
 		{data.title}
 	</h1>
 
@@ -32,22 +33,22 @@ const { remarkPluginFrontmatter } = await render(content)
 
 	{
 		!!data.tags?.length && (
-			<div class='flex flex-wrap items-center gap-2'>
+			<p class='flex flex-wrap items-center gap-x-4 gap-y-1 text-sm'>
 				{data.tags.map((tag) => (
 					<a
 						href={`/tags/${tag}/`}
-						class="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground before:content-['#']"
+						class="text-muted-foreground transition-colors before:content-['#'] hover:text-brand"
 					>
 						{tag}
 					</a>
 				))}
-			</div>
+			</p>
 		)
 	}
 
 	{
 		data.heroImage && (
-			<div class='aspect-h-9 aspect-w-16 mt-4 overflow-hidden rounded-2xl border border-border'>
+			<div class='aspect-h-9 aspect-w-16 mt-4 overflow-hidden rounded-md'>
 				<Image
 					alt={data.heroImage.alt}
 					class='object-cover'
@@ -61,7 +62,7 @@ const { remarkPluginFrontmatter } = await render(content)
 
 	{
 		data.updatedDate && (
-			<p class='text-sm text-muted-foreground'>
+			<p class='text-sm italic text-muted-foreground'>
 				Updated <FormattedDate class='ms-1' date={data.updatedDate} />
 			</p>
 		)
