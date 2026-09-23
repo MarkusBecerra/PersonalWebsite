@@ -32,9 +32,9 @@ const isActive = (path: string) =>
 		<button
 			id='toggleDarkMode'
 			class='flex h-8 w-8 translate-y-[3px] items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground'
-			aria-label='Toggle color theme'
+			aria-label='Dark theme'
+			aria-pressed='false'
 		>
-			<span class='sr-only'>Toggle theme</span>
 			<svg
 				xmlns='http://www.w3.org/2000/svg'
 				viewBox='0 0 24 24'
@@ -58,14 +58,19 @@ const isActive = (path: string) =>
 </header>
 
 <script>
-	function getCurrentTheme() {
-		return localStorage.getItem('theme')
-	}
 	const toggleDarkModeButton = document.getElementById('toggleDarkMode')
+	const isDark = () => document.documentElement.classList.contains('dark')
+	const syncPressed = () => toggleDarkModeButton?.setAttribute('aria-pressed', String(isDark()))
+
+	syncPressed()
+	new MutationObserver(syncPressed).observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ['class']
+	})
 
 	toggleDarkModeButton?.addEventListener('click', () => {
 		const toggleDarkModeEvent = new CustomEvent('theme-change', {
-			detail: { theme: getCurrentTheme() === 'light' ? 'dark' : 'light' }
+			detail: { theme: isDark() ? 'light' : 'dark' }
 		})
 		document.dispatchEvent(toggleDarkModeEvent)
 	})

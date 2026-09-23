@@ -41,6 +41,8 @@
 		/* Moss — the single accent: links, active states, focus. */
 		--brand: 152 30% 30%;
 		--brand-foreground: 42 33% 96%;
+		/* Code blocks: a shade deeper than the paper, never white. */
+		--code: 40 28% 92.5%;
 		--radius: 0.5rem;
 	}
 
@@ -67,6 +69,7 @@
 		--ring: 145 24% 62%;
 		--brand: 145 24% 62%;
 		--brand-foreground: 30 8% 9%;
+		--code: 30 7% 12.5%;
 		--radius: 0.5rem;
 	}
 }
@@ -99,4 +102,14 @@
 	.link {
 		@apply underline decoration-foreground/25 decoration-1 underline-offset-4 transition-colors hover:text-brand hover:decoration-brand;
 	}
+	/* Inline code in prose: a quiet paper chip, same weight as the text around it. */
+	.prose :where(:not(pre) > code):not(:where([class~='not-prose'] *)) {
+		@apply rounded-sm bg-[hsl(var(--code))] px-[0.3em] py-[0.1em] text-[0.875em] font-normal;
+	}
+}
+
+/* Expressive-code's copy button draws its own outline; give it the site's ring. */
+.expressive-code .copy button:focus-visible {
+	outline: 2px solid hsl(var(--brand));
+	outline-offset: 2px;
 }

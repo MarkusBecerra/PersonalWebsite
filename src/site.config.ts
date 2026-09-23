@@ -44,14 +44,30 @@ export const expressiveCodeOptions: AstroExpressiveCodeOptions = {
 		return `[data-theme="${theme.name}"]`
 	},
 	useThemedScrollbars: false,
+	// Wrap long lines instead of clipping them at the frame edge; indentation is kept.
+	defaultProps: {
+		wrap: true
+	},
+	// Keep each theme's syntax colours but sit them on the site's own warm surfaces,
+	// so neither a white slab (light) nor a violet one (dark) lands on the paper.
 	styleOverrides: {
+		codeBackground: 'hsl(var(--code))',
+		borderColor: 'hsl(var(--border))',
+		borderWidth: '1px',
 		frames: {
-			frameBoxShadowCssValue: 'none'
+			frameBoxShadowCssValue: 'none',
+			editorBackground: 'hsl(var(--code))',
+			editorTabBarBackground: 'hsl(var(--code))',
+			editorActiveTabBackground: 'hsl(var(--code))',
+			editorTabBarBorderBottomColor: 'hsl(var(--border))',
+			terminalBackground: 'hsl(var(--code))',
+			terminalTitlebarBackground: 'hsl(var(--code))',
+			terminalTitlebarBorderBottomColor: 'hsl(var(--border))'
 		},
 		uiLineHeight: 'inherit',
 		codeFontSize: '0.875rem',
 		codeLineHeight: '1.7142857rem',
-		borderRadius: '0px',
+		borderRadius: '0.375rem',
 		codePaddingInline: '1rem',
 		codeFontFamily:
 			'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;'
