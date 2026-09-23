@@ -31,7 +31,8 @@ const firstName = siteConfig.author.split(' ')[0]
 		<meta content='width=device-width, initial-scale=1.0' name='viewport' />
 		<title>Under construction {'•'} {siteConfig.title}</title>
 		<meta content='noindex, nofollow' name='robots' />
-		<meta content='#1a1320' name='theme-color' />
+		<meta content='#f8f5ef' media='(prefers-color-scheme: light)' name='theme-color' />
+		<meta content='#191715' media='(prefers-color-scheme: dark)' name='theme-color' />
 		<link rel='icon' type='image/png' sizes='32x32' href='/favicon/favicon-32x32.png' />
 		<link rel='preconnect' href='https://fonts.googleapis.com' />
 		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
@@ -43,19 +44,12 @@ const firstName = siteConfig.author.split(' ')[0]
 
 	<body class='bg-background'>
 		<ThemeProvider />
-		<div class='glow-sunset pointer-events-none fixed inset-0 -z-10' aria-hidden='true'></div>
 
 		<main class='mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-16'>
-			<div class='rounded-2xl border border-border bg-card p-8 shadow-soft'>
-				<span
-					class='bg-sunset mb-6 inline-block h-3 w-3 rounded-full shadow-[0_0_0_4px_hsl(var(--brand)/0.12)]'
-				></span>
+			<div>
+				<h1 class='font-display text-4xl leading-tight tracking-tight'>Under construction</h1>
 
-				<h1 class='font-display text-3xl font-medium leading-tight tracking-tight'>
-					Under construction
-				</h1>
-
-				<p class='mt-3 text-sm leading-relaxed text-muted-foreground'>
+				<p class='mt-3 leading-relaxed text-muted-foreground'>
 					{firstName} is still building this one. If you have the password, come on in — otherwise check
 					back soon.
 				</p>
@@ -65,7 +59,7 @@ const firstName = siteConfig.author.split(' ')[0]
 
 					<label class='sr-only' for='password'>Site password</label>
 					<input
-						class='w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground'
+						class='w-full rounded-md border border-input bg-card px-4 py-2.5 text-sm placeholder:text-muted-foreground'
 						id='password'
 						name='password'
 						type='password'
@@ -86,7 +80,7 @@ const firstName = siteConfig.author.split(' ')[0]
 					}
 
 					<button
-						class='mt-1 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
+						class='mt-1 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
 						type='submit'
 					>
 						Let me in
@@ -94,7 +88,7 @@ const firstName = siteConfig.author.split(' ')[0]
 				</form>
 			</div>
 
-			<p class='mt-6 text-center text-xs text-muted-foreground'>
+			<p class='mt-10 text-xs text-muted-foreground'>
 				{siteConfig.title}
 				{'—'} coming soon
 			</p>

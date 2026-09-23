@@ -9,22 +9,20 @@ interface Props {
 const { category, class: className = '' } = Astro.props
 
 // Typed against CATEGORIES — TypeScript will error if a category is missing here.
-const styles: Record<(typeof CATEGORIES)[number], string> = {
-	engineering: 'bg-violet-500/10 text-violet-700 dark:text-violet-300 ring-violet-500/20',
-	music:       'bg-blue-500/10 text-blue-700 dark:text-blue-300 ring-blue-500/20',
-	recreation:  'bg-teal-600/10 text-teal-700 dark:text-teal-300 ring-teal-600/20',
-	general:     'bg-secondary text-muted-foreground ring-border'
+// Each category gets a small earth-toned dot rather than a colored pill.
+const dots: Record<(typeof CATEGORIES)[number], string> = {
+	engineering: 'bg-sky-800/70 dark:bg-sky-300/70',
+	music: 'bg-orange-700/70 dark:bg-orange-300/70',
+	recreation: 'bg-emerald-800/70 dark:bg-emerald-300/70',
+	general: 'bg-muted-foreground/50'
 }
 
-const cls = styles[category as keyof typeof styles] ?? styles.general
+const dot = dots[category as keyof typeof dots] ?? dots.general
 ---
 
 <span
-	class:list={[
-		'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ring-1 ring-inset',
-		cls,
-		className
-	]}
+	class:list={['inline-flex items-center gap-x-1.5 capitalize text-muted-foreground', className]}
 >
+	<span class:list={['h-1.5 w-1.5 rounded-full', dot]} aria-hidden='true'></span>
 	{category}
 </span>

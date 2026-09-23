@@ -2,7 +2,7 @@
 import PageLayout from '@/layouts/BaseLayout.astro'
 
 // ─── Hobbies ──────────────────────────────────────────────────────────────────
-// Add, remove, or reorder freely — each entry renders as a pill tag.
+// Add, remove, or reorder freely — they render as one comma-separated sentence.
 const hobbies = [
 	'Software Engineering',
 	'DJing',
@@ -12,9 +12,11 @@ const hobbies = [
 	'Hiking'
 ]
 
+const hobbyList = new Intl.ListFormat('en', { type: 'conjunction' }).format(hobbies)
+
 // ─── Socials ──────────────────────────────────────────────────────────────────
 // Update each `href` and `handle` with your actual profile URLs.
-// Set `deprecated: true` to dim the card and show a "Deprecated" badge.
+// Set `deprecated: true` to dim the row and mark it as no longer active.
 const socials = [
 	{
 		label: 'X / Twitter',
@@ -62,175 +64,90 @@ const socials = [
 ---
 
 <PageLayout meta={{ title: 'About', description: 'Learn more about Markus Becerra.' }}>
-	<!-- Page header -->
-	<section class='flex flex-col gap-y-3'>
-		<span class='text-sm font-medium uppercase tracking-widest text-brand'>About</span>
-		<h1 class='font-display text-4xl font-medium tracking-tight sm:text-5xl'>Hey, I'm Markus.</h1>
-	</section>
+	<h1 class='font-display text-4xl tracking-tight sm:text-5xl'>Hey, I’m Markus.</h1>
 
 	<!-- Profile: photo + bio ─────────────────────────────────────────────────── -->
-	<section class='mt-10'>
-		<div class='flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-10'>
-			<!--
-				Photo placeholder.
-				To add your photo, replace this entire <div> with:
-				<img src="/path/to/photo.jpg" alt="Markus Becerra" class="h-44 w-44 shrink-0 rounded-2xl object-cover" />
-				Or use Astro's <Image /> component for automatic optimization.
-			-->
-			<div
-				class='relative h-44 w-44 shrink-0 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-card'
-			>
-				<div
-					class='flex h-full w-full flex-col items-center justify-center gap-y-2 text-muted-foreground'
-				>
-					<svg
-						class='h-12 w-12 opacity-20'
-						viewBox='0 0 24 24'
-						fill='none'
-						stroke='currentColor'
-						stroke-width='1.5'
-						stroke-linecap='round'
-						stroke-linejoin='round'
-					>
-						<path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path>
-						<circle cx='12' cy='7' r='4'></circle>
-					</svg>
-					<span class='text-xs font-medium opacity-30'>Add photo</span>
-				</div>
-			</div>
+	<section class='mt-10 flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-10'>
+		<!--
+			Photo placeholder.
+			To add your photo, replace this entire <div> with:
+			<img src="/path/to/photo.jpg" alt="Markus Becerra" class="h-40 w-40 shrink-0 rounded-md object-cover" />
+			Or use Astro's <Image /> component for automatic optimization.
+		-->
+		<div
+			class='flex h-40 w-40 shrink-0 items-center justify-center rounded-md bg-secondary text-sm italic text-muted-foreground'
+		>
+			Photo soon
+		</div>
 
-			<!-- Bio — replace the placeholder paragraphs with your own words -->
-			<div class='flex flex-col gap-y-4'>
-				<p class='text-lg leading-relaxed text-muted-foreground'>
-					[Your bio goes here. A few sentences about who you are, what you do, and what drives you.
-					Keep it personal and genuine.]
-				</p>
-				<p class='text-muted-foreground'>
-					[Add a second paragraph if you'd like — maybe where you're based, your background, or what
-					you're currently working on.]
-				</p>
-				<div class='flex flex-wrap items-center gap-3 pt-1'>
-					<a
-						href='mailto:markusbecerra@gmail.com'
-						class='inline-flex items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
-					>
-						Get in touch
-						<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
-							<path
-								fill='currentColor'
-								d='M5 12h13m0 0l-5-5m5 5l-5 5'
-								stroke='currentColor'
-								stroke-width='2'
-								stroke-linecap='round'
-								stroke-linejoin='round'
-								fill-opacity='0'></path>
-						</svg>
-					</a>
-					<a
-						href='/work'
-						class='inline-flex items-center rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-secondary'
-					>
-						View my work →
-					</a>
-				</div>
-			</div>
+		<!-- Bio — replace the placeholder paragraphs with your own words -->
+		<div class='flex flex-col gap-y-4'>
+			<p class='text-lg'>
+				[Your bio goes here. A few sentences about who you are, what you do, and what drives you.
+				Keep it personal and genuine.]
+			</p>
+			<p class='text-muted-foreground'>
+				[Add a second paragraph if you'd like — maybe where you're based, your background, or what
+				you're currently working on.]
+			</p>
+			<p class='flex flex-wrap gap-x-6 gap-y-2'>
+				<a href='mailto:markusbecerra@gmail.com' class='link'>Get in touch</a>
+				<a href='/work' class='link'>See my work</a>
+			</p>
 		</div>
 	</section>
 
 	<!-- Hobbies & Interests ─────────────────────────────────────────────────── -->
-	<section class='mt-16'>
-		<h2 class='mb-5 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
-			Hobbies & Interests
-		</h2>
-		<div class='flex flex-wrap gap-2'>
-			{
-				hobbies.map((hobby) => (
-					<span class='rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-soft'>
-						{hobby}
-					</span>
-				))
-			}
-		</div>
+	<section class='mt-20'>
+		<h2 class='section-title'>Things I love doing</h2>
+		<p class='mt-4 text-lg'>{hobbyList}.</p>
 	</section>
 
 	<!-- Social links ─────────────────────────────────────────────────────────── -->
-	<section class='mt-16'>
-		<h2 class='mb-5 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
-			Find me on
-		</h2>
-		<div class='grid gap-3 sm:grid-cols-2'>
+	<section class='mt-20'>
+		<h2 class='section-title'>Elsewhere</h2>
+		<ul class='divide-y divide-border'>
 			{
 				socials.map((s) => (
-					<a
-						href={s.href}
-						target='_blank'
-						rel='noopener noreferrer'
-						class:list={[
-							'group flex items-center gap-x-4 rounded-2xl border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5',
-							s.deprecated
-								? 'border-border opacity-60 hover:opacity-75'
-								: 'border-border hover:border-brand/30'
-						]}
-					>
-						<span class='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors group-hover:text-brand'>
-							<svg class='h-5 w-5' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+					<li>
+						<a
+							href={s.href}
+							target='_blank'
+							rel='noopener noreferrer'
+							class:list={[
+								'group flex items-center gap-x-3 py-3.5',
+								s.deprecated && 'text-muted-foreground'
+							]}
+						>
+							<svg
+								class='h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-brand'
+								viewBox='0 0 24 24'
+								xmlns='http://www.w3.org/2000/svg'
+								aria-hidden='true'
+							>
 								<path fill='currentColor' d={s.icon} />
 							</svg>
-						</span>
-						<div class='min-w-0 flex-1'>
-							<div class='flex items-center gap-x-2'>
-								<p class='font-medium'>{s.label}</p>
-								{s.deprecated && (
-									<span class='rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground'>
-										Deprecated
-									</span>
-								)}
-							</div>
-							<p class='truncate text-sm text-muted-foreground'>{s.handle}</p>
-						</div>
-						<svg
-							class='h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-brand/70'
-							viewBox='0 0 24 24'
-							fill='none'
-							stroke='currentColor'
-							stroke-width='2'
-							stroke-linecap='round'
-							stroke-linejoin='round'
-						>
-							<path d='M5 12h14m0 0l-6-6m6 6l-6 6'></path>
-						</svg>
-					</a>
+							<span class='transition-colors group-hover:text-brand'>{s.label}</span>
+							{s.deprecated && <span class='text-xs italic'>no longer active</span>}
+							<span class='ml-auto truncate text-sm text-muted-foreground'>{s.handle}</span>
+						</a>
+					</li>
 				))
 			}
-		</div>
+		</ul>
 	</section>
 
 	<!-- Contact ──────────────────────────────────────────────────────────────── -->
-	<section class='mt-16'>
-		<div class='rounded-2xl border border-border bg-card p-8 shadow-soft'>
-			<h2 class='font-display text-2xl font-medium tracking-tight'>Get in touch</h2>
-			<p class='mt-2 max-w-md text-muted-foreground'>
-				Have a project in mind, want to collaborate, or just want to say hello? My inbox is open.
-			</p>
-			<div class='mt-6 flex flex-wrap items-center gap-4'>
-				<a
-					href='mailto:markusbecerra@gmail.com'
-					class='inline-flex items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
-				>
-					Send an email
-					<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
-						<path
-							fill='currentColor'
-							d='M5 12h13m0 0l-5-5m5 5l-5 5'
-							stroke='currentColor'
-							stroke-width='2'
-							stroke-linecap='round'
-							stroke-linejoin='round'
-							fill-opacity='0'></path>
-					</svg>
-				</a>
-				<span class='text-sm text-muted-foreground'>markusbecerra@gmail.com</span>
-			</div>
-		</div>
+	<section class='mt-20'>
+		<h2 class='section-title'>Say hello</h2>
+		<p class='mt-4 max-w-lg text-muted-foreground'>
+			Have a project in mind, want to collaborate, or just want to say hello? My inbox is open.
+		</p>
+		<a
+			href='mailto:markusbecerra@gmail.com'
+			class='link mt-4 inline-block font-display text-2xl tracking-tight sm:text-3xl'
+		>
+			markusbecerra@gmail.com
+		</a>
 	</section>
 </PageLayout>

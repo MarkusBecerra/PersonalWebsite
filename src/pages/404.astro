@@ -8,19 +8,10 @@ const meta = {
 ---
 
 <PageLayout meta={meta}>
-	<div class='flex flex-col items-center px-4 py-20 text-center'>
-		<span class='font-display text-8xl font-medium text-sunset sm:text-9xl'>404</span>
-		<p class='mt-4 text-lg text-muted-foreground'>This page slipped past golden hour.</p>
-		<a
-			href='/'
-			class='mt-8 inline-flex items-center gap-x-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90'
-		>
-			<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'>
-				<path
-					fill='currentColor'
-					d='m6.921 12.5l5.792 5.792L12 19l-7-7l7-7l.713.708L6.921 11.5H19v1z'></path>
-			</svg>
-			Back home
-		</a>
+	<div class='flex flex-col gap-y-4 py-12'>
+		<p class='font-display text-lg italic text-muted-foreground'>404</p>
+		<h1 class='font-display text-4xl tracking-tight sm:text-5xl'>Off the trail.</h1>
+		<p class='text-lg text-muted-foreground'>This page doesn’t exist, or it wandered off.</p>
+		<a href='/' class='link mt-2 w-fit'>Head back home</a>
 	</div>
 </PageLayout>

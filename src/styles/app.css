@@ -17,64 +17,57 @@
 }
 
 @layer base {
-	/* Light — "cool paper": soft blue-gray page, crisp white cards, navy ink. */
+	/* Light — "field notebook": warm unbleached paper, soft ink, one moss-green accent. */
 	:root {
-		--background: 220 18% 93%;
-		--foreground: 222 28% 12%;
-		--card: 220 22% 97%;
-		--card-foreground: 222 28% 12%;
-		--popover: 220 22% 97%;
-		--popover-foreground: 222 28% 12%;
-		--primary: 222 28% 12%;
-		--primary-foreground: 220 18% 93%;
-		--secondary: 220 14% 88%;
-		--secondary-foreground: 222 28% 12%;
-		--muted: 220 12% 88%;
-		--muted-foreground: 220 8% 42%;
-		--accent: 220 18% 89%;
-		--accent-foreground: 222 28% 12%;
-		--destructive: 0 65% 45%;
-		--destructive-foreground: 220 18% 93%;
-		--border: 220 14% 84%;
-		--input: 220 14% 84%;
-		--ring: 221 58% 46%;
-		/* Steel-blue signal — restrained, used for accents, links, markers. */
-		--brand: 221 58% 46%;
-		--brand-foreground: 220 18% 93%;
-		/* Sky → steel → navy gradient. */
-		--sunset-1: 208 72% 62%; /* sky blue   */
-		--sunset-2: 221 62% 50%; /* steel blue */
-		--sunset-3: 232 52% 40%; /* deep navy  */
-		--radius: 0.85rem;
+		--background: 42 33% 96%;
+		--foreground: 30 12% 14%;
+		--card: 42 36% 98%;
+		--card-foreground: 30 12% 14%;
+		--popover: 42 36% 98%;
+		--popover-foreground: 30 12% 14%;
+		--primary: 30 12% 14%;
+		--primary-foreground: 42 33% 96%;
+		--secondary: 38 24% 90%;
+		--secondary-foreground: 30 12% 14%;
+		--muted: 38 22% 90%;
+		--muted-foreground: 30 7% 40%;
+		--accent: 38 24% 90%;
+		--accent-foreground: 30 12% 14%;
+		--destructive: 8 60% 42%;
+		--destructive-foreground: 42 33% 96%;
+		--border: 36 18% 84%;
+		--input: 36 18% 80%;
+		--ring: 152 30% 30%;
+		/* Moss — the single accent: links, active states, focus. */
+		--brand: 152 30% 30%;
+		--brand-foreground: 42 33% 96%;
+		--radius: 0.5rem;
 	}
 
-	/* Dark — "midnight navy": deep navy-charcoal, cool white text, periwinkle glow. */
+	/* Dark — "campfire": warm charcoal, parchment text, sage accent. */
 	.dark {
-		--background: 222 22% 8%;
-		--foreground: 220 18% 92%;
-		--card: 222 20% 11%;
-		--card-foreground: 220 18% 92%;
-		--popover: 222 20% 11%;
-		--popover-foreground: 220 18% 92%;
-		--primary: 220 18% 92%;
-		--primary-foreground: 222 22% 8%;
-		--secondary: 222 16% 17%;
-		--secondary-foreground: 220 18% 92%;
-		--muted: 222 16% 17%;
-		--muted-foreground: 220 10% 60%;
-		--accent: 222 16% 20%;
-		--accent-foreground: 220 18% 92%;
-		--destructive: 0 55% 42%;
-		--destructive-foreground: 220 18% 92%;
-		--border: 222 14% 22%;
-		--input: 222 14% 22%;
-		--ring: 221 68% 65%;
-		--brand: 221 68% 65%;
-		--brand-foreground: 222 22% 8%;
-		--sunset-1: 208 80% 68%; /* light sky   */
-		--sunset-2: 221 70% 58%; /* periwinkle  */
-		--sunset-3: 232 60% 48%; /* navy        */
-		--radius: 0.85rem;
+		--background: 30 8% 9%;
+		--foreground: 40 22% 87%;
+		--card: 30 7% 11%;
+		--card-foreground: 40 22% 87%;
+		--popover: 30 7% 11%;
+		--popover-foreground: 40 22% 87%;
+		--primary: 40 22% 87%;
+		--primary-foreground: 30 8% 9%;
+		--secondary: 30 6% 15%;
+		--secondary-foreground: 40 22% 87%;
+		--muted: 30 6% 15%;
+		--muted-foreground: 36 8% 60%;
+		--accent: 30 6% 17%;
+		--accent-foreground: 40 22% 87%;
+		--destructive: 8 55% 55%;
+		--destructive-foreground: 30 8% 9%;
+		--border: 30 6% 20%;
+		--input: 30 6% 24%;
+		--ring: 145 24% 62%;
+		--brand: 145 24% 62%;
+		--brand-foreground: 30 8% 9%;
+		--radius: 0.5rem;
 	}
 }
 
@@ -85,38 +78,25 @@
 	body {
 		@apply bg-background text-foreground antialiased;
 	}
+	::selection {
+		@apply bg-brand/20;
+	}
 	:focus-visible {
-		@apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-background;
+		@apply rounded-sm outline-none ring-2 ring-brand ring-offset-2 ring-offset-background;
 	}
 }
 
-@layer utilities {
-	/* Sky → steel → navy gradient. */
-	.bg-sunset {
-		background-image: linear-gradient(
-			110deg,
-			hsl(var(--sunset-1)),
-			hsl(var(--sunset-2)) 50%,
-			hsl(var(--sunset-3))
-		);
+@layer components {
+	/* Italic serif section title trailed by a hairline rule. */
+	.section-title {
+		@apply mb-2 flex items-center gap-x-4 font-display text-lg italic text-muted-foreground;
 	}
-	.text-sunset {
-		background-image: linear-gradient(
-			110deg,
-			hsl(var(--sunset-1)),
-			hsl(var(--sunset-2)) 50%,
-			hsl(var(--sunset-3))
-		);
-		-webkit-background-clip: text;
-		background-clip: text;
-		color: transparent;
+	.section-title::after {
+		content: '';
+		@apply h-px flex-1 bg-border;
 	}
-	/* Soft ambient blue glow behind the hero. */
-	.glow-sunset {
-		background: radial-gradient(
-			60% 60% at 50% 0%,
-			hsl(var(--sunset-2) / 0.10),
-			transparent 70%
-		);
+	/* Plain underlined text link; the underline darkens to the accent on hover. */
+	.link {
+		@apply underline decoration-foreground/25 decoration-1 underline-offset-4 transition-colors hover:text-brand hover:decoration-brand;
 	}
 }

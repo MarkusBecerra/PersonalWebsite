@@ -15,21 +15,10 @@ const skills: Array<{ name: string; level: Level }> = [
 	{ name: '[Skill E]', level: 'beginner' }
 ]
 
-// Sort advanced → intermediate → beginner so the hierarchy reads left-to-right.
-const levelOrder: Record<Level, number> = { advanced: 0, intermediate: 1, beginner: 2 }
-const sortedSkills = [...skills].sort((a, b) => levelOrder[a.level] - levelOrder[b.level])
-
-const levelStyle: Record<Level, string> = {
-	advanced: 'bg-brand/10 text-brand border border-brand/25',
-	intermediate: 'bg-secondary text-secondary-foreground border border-border',
-	beginner: 'bg-secondary/50 text-muted-foreground border border-border'
-}
-
-const levelDot: Record<Level, string> = {
-	advanced: 'bg-brand/80',
-	intermediate: 'bg-secondary-foreground/35',
-	beginner: 'bg-muted-foreground/30'
-}
+const levels: Level[] = ['advanced', 'intermediate', 'beginner']
+const skillsByLevel = levels
+	.map((level) => ({ level, names: skills.filter((s) => s.level === level).map((s) => s.name) }))
+	.filter((group) => group.names.length > 0)
 
 // ─── Experience ───────────────────────────────────────────────────────────────
 // Add one object per role. Duplicate the template block to add more entries.
@@ -56,57 +45,33 @@ const experiences = [
 <PageLayout
 	meta={{ title: 'Work', description: 'Professional experience and skills of Markus Becerra.' }}
 >
-	<!-- Page header -->
-	<section class='flex flex-col gap-y-3'>
-		<span class='text-sm font-medium uppercase tracking-widest text-brand'>Work</span>
-		<h1 class='font-display text-4xl font-medium tracking-tight sm:text-5xl'>
-			Professional experience
-		</h1>
+	<section class='flex flex-col gap-y-4'>
+		<h1 class='font-display text-4xl tracking-tight sm:text-5xl'>Work</h1>
 		<p class='max-w-xl text-lg text-muted-foreground'>
 			The roles I've held and the skills I've built — paid, shipped, and production-grade.
 		</p>
 	</section>
 
-	<!-- Skills ──────────────────────────────────────────────────────────────── -->
-	<section class='mt-14'>
-		<div class='mb-4 flex flex-wrap items-center justify-between gap-y-2'>
-			<h2 class='text-sm font-medium uppercase tracking-widest text-muted-foreground'>Skills</h2>
-			<!-- Level legend -->
-			<div class='flex items-center gap-x-4 text-xs text-muted-foreground'>
-				{
-					(['advanced', 'intermediate', 'beginner'] as Level[]).map((lvl) => (
-						<span class='flex items-center gap-x-1.5 capitalize'>
-							<span class:list={['h-2 w-2 rounded-full', levelDot[lvl]]} />
-							{lvl}
-						</span>
-					))
-				}
-			</div>
-		</div>
-
-		<div class='flex flex-wrap gap-2'>
-			{
-				sortedSkills.map((skill) => (
-					<span
-						class:list={[
-							'flex items-center gap-x-2 rounded-full px-4 py-2 text-sm font-medium',
-							levelStyle[skill.level]
-						]}
-					>
-						{skill.name}
-					</span>
-				))
-			}
+	<!-- Experience ──────────────────────────────────────────────────────────── -->
+	<section class='mt-16'>
+		<h2 class='section-title'>Experience</h2>
+		<div class='divide-y divide-border'>
+			{experiences.map((exp) => <WorkExperienceCard {...exp} />)}
 		</div>
 	</section>
 
-	<!-- Experience ──────────────────────────────────────────────────────────── -->
-	<section class='mt-14'>
-		<h2 class='mb-5 text-sm font-medium uppercase tracking-widest text-muted-foreground'>
-			Experience
-		</h2>
-		<div class='flex flex-col gap-y-4'>
-			{experiences.map((exp) => <WorkExperienceCard {...exp} />)}
-		</div>
+	<!-- Skills ──────────────────────────────────────────────────────────────── -->
+	<section class='mt-16'>
+		<h2 class='section-title'>Skills</h2>
+		<dl class='divide-y divide-border'>
+			{
+				skillsByLevel.map(({ level, names }) => (
+					<div class='grid gap-y-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-x-6'>
+						<dt class='capitalize text-muted-foreground'>{level}</dt>
+						<dd>{names.join(', ')}</dd>
+					</div>
+				))
+			}
+		</dl>
 	</section>
 </PageLayout>
