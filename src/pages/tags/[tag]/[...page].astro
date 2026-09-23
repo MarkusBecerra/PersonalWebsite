@@ -1,6 +1,4 @@
 ---
-export const prerender = true
-
 import type { GetStaticPaths, Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
 
@@ -8,8 +6,10 @@ import Pagination from '@/components/Paginator.astro'
 import PostPreview from '@/components/blog/PostPreview.astro'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import Button from '@/components/Button.astro'
-import { getAllPosts, getUniqueTags, sortMDByDate } from '@/utils'
+import { TAG_PAGE_SIZE, getAllPosts, getUniqueTags, sortMDByDate } from '@/utils'
 
+// Used when the site is public and every tag page is prerendered. While the site
+// is locked the build renders on demand instead, and Astro ignores this.
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
 	const allPosts = await getAllPosts()
 	const allPostsByDate = sortMDByDate(allPosts)
@@ -18,18 +18,58 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
 	return uniqueTags.flatMap((tag) => {
 		const filterPosts = allPostsByDate.filter((post) => post.data.tags.includes(tag))
 		return paginate(filterPosts, {
-			pageSize: 10,
+			pageSize: TAG_PAGE_SIZE,
 			params: { tag }
 		})
 	})
 }
 
 interface Props {
-	page: Page<CollectionEntry<'blog'>>
+	page?: Page<CollectionEntry<'blog'>>
 }
 
-const { page } = Astro.props
-const { tag } = Astro.params
+const tag = String(Astro.params.tag ?? '')
+
+/** Rebuilds what `paginate()` would have produced, for on-demand rendering. */
+async function paginateOnDemand(): Promise<Page<CollectionEntry<'blog'>> | undefined> {
+	const posts = sortMDByDate(await getAllPosts()).filter((post) => post.data.tags.includes(tag))
+	if (posts.length === 0) return undefined
+
+	// `/tags/astro` is page 1; `/tags/astro/2` and beyond carry the number. Page 1
+	// exists only at the bare URL, and comparing the number back against the text
+	// rejects spellings the static build would never emit — `/01`, `/1.0`, `/0x2`,
+	// `/ 2 ` — so they don't turn into duplicate pages.
+	const param = Astro.params.page || undefined
+	const requested = param === undefined ? 1 : Number(param)
+	if (param !== undefined && (String(requested) !== param || requested < 2)) return undefined
+
+	const lastPage = Math.ceil(posts.length / TAG_PAGE_SIZE)
+	if (requested > lastPage) return undefined
+
+	const start = (requested - 1) * TAG_PAGE_SIZE
+	const data = posts.slice(start, start + TAG_PAGE_SIZE)
+	const href = (n: number) => (n === 1 ? `/tags/${tag}` : `/tags/${tag}/${n}`)
+
+	return {
+		data,
+		start,
+		end: start + data.length - 1,
+		total: posts.length,
+		currentPage: requested,
+		size: TAG_PAGE_SIZE,
+		lastPage,
+		url: {
+			current: href(requested),
+			prev: requested > 1 ? href(requested - 1) : undefined,
+			next: requested < lastPage ? href(requested + 1) : undefined,
+			first: requested > 1 ? href(1) : undefined,
+			last: requested < lastPage ? href(lastPage) : undefined
+		}
+	}
+}
+
+const page = Astro.props.page ?? (await paginateOnDemand())
+if (!page) return Astro.rewrite('/404')
 
 const meta = {
 	description: `View all posts with the tag - ${tag}`,

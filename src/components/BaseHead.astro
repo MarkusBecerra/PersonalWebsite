@@ -5,10 +5,14 @@ import '../styles/app.css'
 
 import type { SiteMeta } from '@/types'
 import { siteConfig } from '@/site-config'
+import { isSiteLocked } from '@/site-lock'
 
 type Props = SiteMeta
 
 const { articleDate, description, ogImage, title } = Astro.props
+
+// Nothing behind the gate should end up in a search index.
+const locked = isSiteLocked()
 
 const titleSeparator = '•'
 const siteTitle = `${title} ${titleSeparator} ${siteConfig.title}`
@@ -17,6 +21,7 @@ const socialImageURL = new URL(ogImage ? ogImage : '/social-card.png', Astro.url
 ---
 
 <meta charset='utf-8' />
+{locked && <meta content='noindex, nofollow' name='robots' />}
 <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
 <meta content='IE=edge' http-equiv='X-UA-Compatible' />
 <title>{siteTitle}</title>
@@ -89,7 +94,7 @@ const socialImageURL = new URL(ogImage ? ogImage : '/social-card.png', Astro.url
 <meta content={socialImageURL} property='twitter:image' />
 
 {/* Sitemap */}
-<link href='/sitemap-index.xml' rel='sitemap' />
+{!locked && <link href='/sitemap-index.xml' rel='sitemap' />}
 
 {/* RSS auto-discovery */}
 <link href='/rss.xml' rel='alternate' title={siteConfig.title} type='application/rss+xml' />

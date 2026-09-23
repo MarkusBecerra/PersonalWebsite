@@ -1,5 +1,6 @@
 export { cn } from './tailwind'
 export {
+	TAG_PAGE_SIZE,
 	getAllPosts,
 	sortMDByDate,
 	getPostsByCategory,

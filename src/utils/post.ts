@@ -1,6 +1,9 @@
 import type { CollectionEntry } from 'astro:content'
 import { getCollection } from 'astro:content'
 
+/** Posts shown per page on a tag listing. */
+export const TAG_PAGE_SIZE = 10
+
 /** Note: this function filters out draft posts based on the environment */
 export async function getAllPosts() {
 	return await getCollection('blog', ({ data }) => {
