@@ -6,21 +6,29 @@ const isActive = (path: string) =>
 	path === '/' ? pathname === '/' : pathname.startsWith(path.replace(/\/$/, ''))
 ---
 
-<header class='mb-16 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 sm:mb-24'>
-	<a class='font-display text-xl tracking-tight transition-colors hover:text-brand' href='/'>
+<header class='mb-12 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 sm:mb-20'>
+	<a class='py-2 font-display text-xl tracking-tight transition-colors hover:text-brand' href='/'>
 		{siteConfig.author}
 	</a>
 
-	<nav class='-mx-1 flex items-center gap-x-4 text-[0.95rem] sm:gap-x-5' aria-label='Primary'>
+	<!--
+		Below sm the nav takes its own full-width row under the name, set off by a
+		hairline like every other row on the site, with the links spread edge to edge.
+	-->
+	<nav
+		class='flex w-full items-center justify-between gap-x-2 border-t border-border pt-1 text-[0.95rem] sm:w-auto sm:justify-start sm:gap-x-5 sm:border-0 sm:pt-0'
+		aria-label='Primary'
+	>
 		{
 			menuLinks.map((link) => (
 				<a
 					href={link.path}
 					class:list={[
-						'px-1 underline-offset-[6px] transition-colors',
+						// The underline is drawn, not text-decoration, so it can grow in from the left on hover.
+						'nav-link relative px-1 py-2.5 transition-colors first:-ms-1',
 						isActive(link.path)
-							? 'text-foreground underline decoration-brand decoration-2'
-							: 'text-muted-foreground hover:text-foreground'
+							? 'text-foreground after:scale-x-100'
+							: 'text-muted-foreground hover:text-foreground hover:after:scale-x-100'
 					]}
 					aria-current={isActive(link.path) ? 'page' : undefined}
 				>
@@ -31,10 +39,10 @@ const isActive = (path: string) =>
 
 		<button
 			id='toggleDarkMode'
-			class='flex h-8 w-8 translate-y-[3px] items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground'
-			aria-label='Toggle color theme'
+			class='-me-2 flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground sm:-me-2.5'
+			aria-label='Dark theme'
+			aria-pressed='false'
 		>
-			<span class='sr-only'>Toggle theme</span>
 			<svg
 				xmlns='http://www.w3.org/2000/svg'
 				viewBox='0 0 24 24'
@@ -58,14 +66,19 @@ const isActive = (path: string) =>
 </header>
 
 <script>
-	function getCurrentTheme() {
-		return localStorage.getItem('theme')
-	}
 	const toggleDarkModeButton = document.getElementById('toggleDarkMode')
+	const isDark = () => document.documentElement.classList.contains('dark')
+	const syncPressed = () => toggleDarkModeButton?.setAttribute('aria-pressed', String(isDark()))
+
+	syncPressed()
+	new MutationObserver(syncPressed).observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ['class']
+	})
 
 	toggleDarkModeButton?.addEventListener('click', () => {
 		const toggleDarkModeEvent = new CustomEvent('theme-change', {
-			detail: { theme: getCurrentTheme() === 'light' ? 'dark' : 'light' }
+			detail: { theme: isDark() ? 'light' : 'dark' }
 		})
 		document.dispatchEvent(toggleDarkModeEvent)
 	})

@@ -26,13 +26,31 @@ const pillars = [
 		href: '/blog'
 	}
 ]
+
+// What I'm in the middle of, one row per hat. Rewrite these as they change;
+// `href` is optional. Keep it to three or four rows.
+const currently: Array<{ verb: string; what: string; href?: string }> = [
+	{ verb: 'Building', what: 'this site, in Astro and Tailwind', href: '/blog/building-this-site/' },
+	{
+		verb: 'Mixing',
+		what: 'a golden-hour house set for the rooftop',
+		href: '/blog/sunset-set-notes/'
+	},
+	{
+		verb: 'Projecting',
+		what: 'a V5 slab that keeps sending me home',
+		href: '/blog/project-of-the-week/'
+	}
+]
 ---
 
 <PageLayout meta={{ title: 'Home' }}>
 	<!-- Intro -->
 	<section class='flex flex-col gap-y-6'>
-		<h1 class='font-display text-4xl leading-[1.12] tracking-tight sm:text-5xl'>
-			Hi, I’m Markus. I build software, sound <span class='italic text-brand'>& scrambles.</span>
+		<h1 class='text-balance font-display text-4xl leading-[1.12] tracking-tight sm:text-5xl'>
+			Hi, I’m Markus. I build software, sound <span class='whitespace-nowrap italic text-brand'
+				>& scrambles.</span
+			>
 		</h1>
 
 		<p class='max-w-xl text-lg text-muted-foreground'>
@@ -40,14 +58,36 @@ const pillars = [
 			building, mixing, and climbing.
 		</p>
 
-		<p class='flex flex-wrap gap-x-6 gap-y-2'>
+		<!-- Currently: a small field log in the same left-column idiom as the dates below -->
+		<dl class='mt-4 divide-y divide-border border-y border-border' aria-label='Currently'>
+			{
+				currently.map((row) => (
+					<div class='grid grid-cols-[6.5rem_1fr] items-baseline gap-x-4 py-2.5 sm:grid-cols-[9rem_1fr] sm:gap-x-6'>
+						<dt class='font-display text-lg italic leading-snug text-muted-foreground'>
+							{row.verb}
+						</dt>
+						<dd>
+							{row.href ? (
+								<a href={row.href} class='link'>
+									{row.what}
+								</a>
+							) : (
+								row.what
+							)}
+						</dd>
+					</div>
+				))
+			}
+		</dl>
+
+		<p class='mt-2 flex flex-wrap gap-x-6 gap-y-2'>
 			<a href='/blog' class='link'>Read the blog</a>
 			<a href='mailto:markusbecerra@gmail.com' class='link'>Say hello</a>
 		</p>
 	</section>
 
 	<!-- Three pillars -->
-	<section class='mt-20'>
+	<section class='mt-20 sm:mt-28'>
 		<h2 class='section-title'>What I’m into</h2>
 		<ul class='divide-y divide-border'>
 			{
@@ -75,7 +115,7 @@ const pillars = [
 	</section>
 
 	<!-- Latest posts -->
-	<section class='mt-20'>
+	<section class='mt-14 sm:mt-16'>
 		<h2 class='section-title'>Latest writing</h2>
 
 		{
@@ -90,6 +130,6 @@ const pillars = [
 			)
 		}
 
-		<a href='/blog' class='link mt-4 inline-block text-sm text-muted-foreground'>All writing</a>
+		<a href='/blog' class='link mt-4 inline-block text-sm'>All writing</a>
 	</section>
 </PageLayout>

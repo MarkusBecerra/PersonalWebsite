@@ -37,9 +37,9 @@ const { remarkPluginFrontmatter } = await render(content)
 				{data.tags.map((tag) => (
 					<a
 						href={`/tags/${tag}/`}
-						class="text-muted-foreground transition-colors before:content-['#'] hover:text-brand"
+						class='-my-1 py-1 text-muted-foreground transition-colors hover:text-brand'
 					>
-						{tag}
+						#{tag}
 					</a>
 				))}
 			</p>

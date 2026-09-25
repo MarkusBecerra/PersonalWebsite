@@ -65,7 +65,7 @@ const config = {
 			fontFamily: {
 				sans: ['Satoshi', ...fontFamily.sans],
 				satoshi: ['Satoshi', 'sans'],
-				display: ['Fraunces', 'Georgia', ...fontFamily.serif],
+				display: ['Petrona', 'Georgia', ...fontFamily.serif],
 				mono: [...fontFamily.mono]
 			},
 			boxShadow: {
