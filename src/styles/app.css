@@ -92,7 +92,7 @@
 @layer components {
 	/* Italic serif section title trailed by a hairline rule. */
 	.section-title {
-		@apply mb-2 flex items-center gap-x-4 font-display text-lg italic text-muted-foreground;
+		@apply mb-2 flex items-center gap-x-4 font-display text-xl italic text-muted-foreground;
 	}
 	.section-title::after {
 		content: '';

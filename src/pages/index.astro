@@ -48,8 +48,8 @@ const currently: Array<{ verb: string; what: string; href?: string }> = [
 	<!-- Intro -->
 	<section class='flex flex-col gap-y-6'>
 		<h1 class='text-balance font-display text-4xl leading-[1.12] tracking-tight sm:text-5xl'>
-			Hi, I’m Markus. I build software, sound <span class='whitespace-nowrap italic text-brand'
-				>& scrambles.</span
+			Hi, I’m Markus. I build software, sound <span
+				class='whitespace-nowrap italic text-brand [word-spacing:0.08em]'>& scrambles.</span
 			>
 		</h1>
 
@@ -63,7 +63,9 @@ const currently: Array<{ verb: string; what: string; href?: string }> = [
 			{
 				currently.map((row) => (
 					<div class='grid grid-cols-[6.5rem_1fr] items-baseline gap-x-4 py-2.5 sm:grid-cols-[9rem_1fr] sm:gap-x-6'>
-						<dt class='font-display italic text-muted-foreground'>{row.verb}</dt>
+						<dt class='font-display text-lg italic leading-snug text-muted-foreground'>
+							{row.verb}
+						</dt>
 						<dd>
 							{row.href ? (
 								<a href={row.href} class='link'>
