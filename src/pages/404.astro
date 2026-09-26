@@ -1,5 +1,9 @@
 ---
 import PageLayout from '@/layouts/BaseLayout.astro'
+import PostPreview from '@/components/blog/PostPreview.astro'
+import { getAllPosts, sortMDByDate } from '@/utils'
+
+const recent = sortMDByDate(await getAllPosts()).slice(0, 3)
 
 const meta = {
 	description: 'Page not found',
@@ -9,9 +13,27 @@ const meta = {
 
 <PageLayout meta={meta}>
 	<div class='flex flex-col gap-y-4 py-12'>
-		<p class='font-display text-lg italic text-muted-foreground'>404</p>
 		<h1 class='font-display text-4xl tracking-tight sm:text-5xl'>Off the trail.</h1>
-		<p class='text-lg text-muted-foreground'>This page doesn’t exist, or it wandered off.</p>
-		<a href='/' class='link mt-2 w-fit'>Head back home</a>
+		<p class='text-lg text-muted-foreground'>
+			Nothing lives at this address (a 404). It doesn’t exist, or it wandered off.
+		</p>
+		<p class='mt-2 flex flex-wrap gap-x-6 gap-y-2'>
+			<a href='/' class='link'>Head back home</a>
+			<a href='/blog' class='link'>Browse the writing</a>
+			<a href='/projects' class='link'>See what I’m building</a>
+		</p>
 	</div>
+
+	{
+		recent.length > 0 && (
+			<section class='mt-8'>
+				<h2 class='section-title'>Or pick up a recent trail</h2>
+				<div class='divide-y divide-border'>
+					{recent.map((p) => (
+						<PostPreview as='h3' post={p} />
+					))}
+				</div>
+			</section>
+		)
+	}
 </PageLayout>

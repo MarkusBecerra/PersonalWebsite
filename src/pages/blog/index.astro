@@ -34,7 +34,7 @@ const meta = {
 				CATEGORIES.filter((c) => counts[c] > 0).map((c) => (
 					<span class='inline-flex items-center gap-x-1.5'>
 						<CategoryBadge category={c} />
-						<span class='tabular-nums text-muted-foreground/70'>{counts[c]}</span>
+						<span class='tabular-nums text-muted-foreground'>{counts[c]}</span>
 					</span>
 				))
 			}

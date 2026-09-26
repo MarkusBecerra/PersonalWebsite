@@ -41,6 +41,8 @@
 		/* Moss — the single accent: links, active states, focus. */
 		--brand: 152 30% 30%;
 		--brand-foreground: 42 33% 96%;
+		/* Code blocks: a shade deeper than the paper, never white. */
+		--code: 40 28% 92.5%;
 		--radius: 0.5rem;
 	}
 
@@ -67,6 +69,7 @@
 		--ring: 145 24% 62%;
 		--brand: 145 24% 62%;
 		--brand-foreground: 30 8% 9%;
+		--code: 30 7% 12.5%;
 		--radius: 0.5rem;
 	}
 }
@@ -89,7 +92,7 @@
 @layer components {
 	/* Italic serif section title trailed by a hairline rule. */
 	.section-title {
-		@apply mb-2 flex items-center gap-x-4 font-display text-lg italic text-muted-foreground;
+		@apply mb-2 flex items-center gap-x-4 font-display text-xl italic text-muted-foreground;
 	}
 	.section-title::after {
 		content: '';
@@ -97,6 +100,34 @@
 	}
 	/* Plain underlined text link; the underline darkens to the accent on hover. */
 	.link {
-		@apply underline decoration-foreground/25 decoration-1 underline-offset-4 transition-colors hover:text-brand hover:decoration-brand;
+		@apply underline decoration-foreground/50 decoration-1 underline-offset-4 transition-colors hover:text-brand hover:decoration-brand dark:decoration-foreground/40;
 	}
+	/* Header nav underline: a moss rule that draws in from the left on hover and
+	   stays drawn on the current page. */
+	.nav-link::after {
+		content: '';
+		@apply absolute inset-x-1 bottom-1.5 h-0.5 origin-left scale-x-0 rounded-full bg-brand transition-transform duration-300 ease-out;
+	}
+	/* Inline code in prose: a quiet paper chip, same weight as the text around it. */
+	.prose :where(:not(pre) > code):not(:where([class~='not-prose'] *)) {
+		@apply rounded-sm bg-[hsl(var(--code))] px-[0.3em] py-[0.1em] text-[0.875em] font-normal;
+	}
+}
+
+/* Motion is decoration here, never information: collapse it when asked to. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	::before,
+	::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* Expressive-code's copy button draws its own outline; give it the site's ring. */
+.expressive-code .copy button:focus-visible {
+	outline: 2px solid hsl(var(--brand));
+	outline-offset: 2px;
 }

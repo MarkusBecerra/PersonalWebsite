@@ -9,12 +9,14 @@ interface Props {
 const { category, class: className = '' } = Astro.props
 
 // Typed against CATEGORIES — TypeScript will error if a category is missing here.
-// Each category gets a small earth-toned dot rather than a colored pill.
+// Each category gets a small earth-toned dot rather than a colored pill: dusty
+// slate, clay, and lichen — kept clear of the moss accent so the dots never read
+// as links.
 const dots: Record<(typeof CATEGORIES)[number], string> = {
-	engineering: 'bg-sky-800/70 dark:bg-sky-300/70',
-	music: 'bg-orange-700/70 dark:bg-orange-300/70',
-	recreation: 'bg-emerald-800/70 dark:bg-emerald-300/70',
-	general: 'bg-muted-foreground/50'
+	engineering: 'bg-[hsl(210_14%_46%)] dark:bg-[hsl(210_16%_66%)]',
+	music: 'bg-[hsl(20_52%_46%)] dark:bg-[hsl(22_55%_64%)]',
+	recreation: 'bg-[hsl(70_30%_38%)] dark:bg-[hsl(68_28%_60%)]',
+	general: 'bg-muted-foreground/60'
 }
 
 const dot = dots[category as keyof typeof dots] ?? dots.general
