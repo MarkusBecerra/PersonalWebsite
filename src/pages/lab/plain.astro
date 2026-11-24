@@ -1,0 +1,121 @@
+---
+import LabLayout from '@/layouts/LabLayout.astro'
+import LabContent from '@/components/lab/LabContent.astro'
+import { labSections } from '@/lab/versions'
+---
+
+<LabLayout
+	version='plain'
+	title='Plain'
+	description='Markus Becerra: about, work, projects and writing, on one plain page.'
+>
+	<div class='plain'>
+		<header>
+			<h1>Markus Becerra</h1>
+			<p>Engineer by trade, DJ by night, climber by weekend.</p>
+			<nav aria-label='Sections'>
+				{labSections.map((s) => <a href={`#${s.id}`}>{s.label.toLowerCase()}</a>)}
+			</nav>
+		</header>
+		<LabContent />
+		<footer>
+			<p>That’s everything. <a href='#'>Back to top</a>.</p>
+		</footer>
+	</div>
+</LabLayout>
+
+<style is:global>
+	/*
+	 * Plain: one column of text, the system's own fonts, no images, no
+	 * JavaScript. Follows the visitor's light/dark preference.
+	 */
+	html[data-version='plain'] {
+		color-scheme: light dark;
+		scroll-behavior: smooth;
+	}
+	html[data-version='plain'],
+	html[data-version='plain'] body {
+		background: #fbfbf9;
+		color: #1d1d1b;
+	}
+	@media (prefers-color-scheme: dark) {
+		html[data-version='plain'],
+		html[data-version='plain'] body {
+			background: #121211;
+			color: #e6e4de;
+		}
+	}
+	.plain {
+		--ink: currentColor;
+		max-width: 38rem;
+		margin: 0 auto;
+		padding: 4rem 1.25rem 6rem;
+		font-family: ui-serif, Georgia, 'Times New Roman', serif;
+		font-size: 1.125rem;
+		line-height: 1.65;
+	}
+	.plain h1 {
+		font-size: 1.125rem;
+		font-weight: 700;
+		margin: 0;
+	}
+	.plain header p {
+		margin: 0.25rem 0 0;
+		opacity: 0.7;
+	}
+	.plain nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 1.25rem;
+		margin-top: 1rem;
+		font-family: ui-monospace, Menlo, Consolas, monospace;
+		font-size: 0.9rem;
+	}
+	.plain a {
+		color: inherit;
+	}
+	.plain .lab-content {
+		--lab-fg: currentColor;
+		--lab-muted: color-mix(in srgb, currentColor 62%, transparent);
+		--lab-accent: currentColor;
+		--lab-rule: color-mix(in srgb, currentColor 14%, transparent);
+		--lab-font: ui-serif, Georgia, 'Times New Roman', serif;
+		--lab-head-font: ui-serif, Georgia, 'Times New Roman', serif;
+		margin-top: 3rem;
+	}
+	.plain .lab-section {
+		padding-top: 3rem;
+		margin-top: 3rem;
+		border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+		scroll-margin-top: 1rem;
+	}
+	.plain .lab-section:first-child {
+		border-top: 0;
+		margin-top: 0;
+		padding-top: 0;
+	}
+	.plain .lab-h {
+		font-size: 1.125rem;
+		font-weight: 700;
+	}
+	.plain .lab-sub {
+		font-size: 0.8rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		font-family: ui-monospace, Menlo, Consolas, monospace;
+		border-bottom: 0;
+	}
+	.plain .lab-meta {
+		color: var(--lab-muted);
+		font-family: ui-monospace, Menlo, Consolas, monospace;
+	}
+	.plain .lab-rows > *,
+	.plain .lab-entries > li {
+		border-bottom: 0;
+	}
+	.plain footer {
+		margin-top: 4rem;
+		opacity: 0.6;
+		font-size: 0.95rem;
+	}
+</style>

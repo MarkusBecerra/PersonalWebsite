@@ -1,0 +1,529 @@
+---
+import LabLayout from '@/layouts/LabLayout.astro'
+import LabContent from '@/components/lab/LabContent.astro'
+import { labSections } from '@/lab/versions'
+import { SECTION_COLORS } from '@/lab/booth/colors'
+
+// Fake "track lengths" for the tracklist, purely decorative.
+const durations = ['3:42', '5:18', '6:04', '4:27']
+---
+
+<LabLayout
+	version='booth'
+	title='Booth'
+	description='Markus Becerra, live from the booth: about, work, projects and writing.'
+>
+	<div class='booth' data-mode='static'>
+		<canvas class='booth-canvas' aria-hidden='true'></canvas>
+		<div class='booth-lite-bg' aria-hidden='true'>
+			{Array.from({ length: 32 }, (_, i) => <span style={`--i:${i}`} />)}
+		</div>
+
+		<header class='booth-top'>
+			<a href='/lab/booth/' class='booth-logo'>Markus Becerra</a>
+			<p>live from the booth <span aria-hidden='true'>·</span> 124 BPM</p>
+		</header>
+
+		<nav class='booth-tracklist' aria-label='Sections'>
+			<p class='tl-head'>
+				<span>Tracklist</span>
+				<span>{labSections.length} tracks</span>
+			</p>
+			<ol>
+				{
+					labSections.map((s, i) => (
+						<li>
+							<a href={`#${s.id}`} data-pick={s.id} style={`--c:${SECTION_COLORS[s.id]}`}>
+								<span class='tl-num'>{String(i + 1).padStart(2, '0')}</span>
+								<span class='tl-name'>{s.label}</span>
+								<span class='tl-dur'>{durations[i]}</span>
+							</a>
+						</li>
+					))
+				}
+			</ol>
+			<div class='tl-actions'>
+				<button type='button' data-sound aria-pressed='false'>
+					<span data-sound-label>Play a beat</span>
+				</button>
+				<button type='button' data-mode-toggle>Lite version</button>
+			</div>
+		</nav>
+
+		<p class='booth-hint' aria-hidden='true'>
+			Hit a pad on the deck, or pick a track. Drag a platter to scratch.
+		</p>
+		<p class='booth-loading' aria-live='polite'>Setting up the decks…</p>
+		<p class='booth-reason' data-reason></p>
+
+		<aside class='booth-panel' aria-label='Section' tabindex='-1'>
+			<button type='button' class='booth-eject' data-close aria-label='Close section'>
+				<span aria-hidden='true'>⏏</span> Eject
+			</button>
+			<LabContent />
+		</aside>
+	</div>
+</LabLayout>
+
+<script>
+	import { labSections } from '@/lab/versions'
+	import { decideRenderMode, setLitePreference } from '@/lab/runtime'
+	import { createBeat } from '@/lab/booth/beat'
+	import { SECTION_COLORS } from '@/lab/booth/colors'
+
+	const root = document.querySelector<HTMLElement>('.booth')!
+	const canvas = root.querySelector<HTMLCanvasElement>('.booth-canvas')!
+	const panel = root.querySelector<HTMLElement>('.booth-panel')!
+	const soundBtn = root.querySelector<HTMLButtonElement>('[data-sound]')!
+	const soundLabel = root.querySelector<HTMLElement>('[data-sound-label]')!
+	const modeBtn = root.querySelector<HTMLButtonElement>('[data-mode-toggle]')!
+	const reason = root.querySelector<HTMLElement>('[data-reason]')!
+	const ids = labSections.map((s) => s.id as string)
+
+	const beat = createBeat()
+	let scene: { select(id: string | null): void } | null = null
+
+	const decision = decideRenderMode()
+	const lite = decision.mode === 'lite'
+	root.dataset.mode = lite ? 'lite' : 'loading'
+	modeBtn.textContent = lite ? '3D version' : 'Lite version'
+	if (lite && decision.reason) reason.textContent = `${decision.reason}. `
+
+	modeBtn.addEventListener('click', () => {
+		setLitePreference(!lite)
+		const url = new URL(location.href)
+		url.searchParams.delete('lite')
+		url.searchParams.delete('3d')
+		if (lite) url.searchParams.set('3d', '')
+		location.href = url.toString()
+	})
+
+	function currentId() {
+		const id = location.hash.slice(1)
+		return ids.includes(id) ? id : null
+	}
+
+	function show(id: string | null) {
+		// The lite version always shows a section; the 3D one can sit on the overview.
+		const active = id ?? (lite ? 'about' : null)
+		for (const sec of panel.querySelectorAll<HTMLElement>('.lab-section')) {
+			sec.hidden = sec.dataset.section !== active
+		}
+		for (const a of root.querySelectorAll<HTMLElement>('[data-pick]')) {
+			if (a.dataset.pick === active) a.setAttribute('aria-current', 'true')
+			else a.removeAttribute('aria-current')
+		}
+		root.dataset.open = active ? 'true' : 'false'
+		if (active) root.style.setProperty('--c', SECTION_COLORS[active])
+		scene?.select(active)
+	}
+
+	function pick(id: string) {
+		if (location.hash !== `#${id}`) history.pushState(null, '', `#${id}`)
+		show(id)
+		panel.scrollTop = 0
+	}
+
+	function close() {
+		history.pushState(null, '', location.pathname + location.search)
+		show(null)
+	}
+
+	root.querySelectorAll<HTMLAnchorElement>('[data-pick]').forEach((a) =>
+		a.addEventListener('click', (e) => {
+			e.preventDefault()
+			pick(a.dataset.pick!)
+		})
+	)
+	root.querySelector('[data-close]')!.addEventListener('click', close)
+	addEventListener('popstate', () => show(currentId()))
+	addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && root.dataset.open === 'true' && !lite) close()
+	})
+
+	async function toggleSound() {
+		if (beat.playing) beat.stop()
+		else await beat.start()
+		soundBtn.setAttribute('aria-pressed', String(beat.playing))
+		soundLabel.textContent = beat.playing ? 'Stop the beat' : 'Play a beat'
+		root.dataset.sound = beat.playing ? 'on' : 'off'
+	}
+	soundBtn.addEventListener('click', toggleSound)
+
+	show(currentId())
+
+	if (!lite) {
+		// Load three.js only now, after the page and its content are already on screen.
+		const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1))
+		idle(async () => {
+			try {
+				const { mountBooth } = await import('@/lab/booth/scene')
+				scene = mountBooth(canvas, {
+					sections: labSections,
+					beat,
+					onPick: pick,
+					onPlayToggle: toggleSound
+				})
+				scene.select(currentId())
+				root.dataset.mode = '3d'
+			} catch (err) {
+				console.error(err)
+				// Fall back for good on this browser rather than retrying on every visit.
+				setLitePreference(true)
+				location.reload()
+			}
+		})
+	}
+</script>
+
+<style is:global>
+	html[data-version='booth'],
+	html[data-version='booth'] body {
+		background: #07060b;
+		color: #e9e7f2;
+	}
+	.booth {
+		--c: #5cb8ff;
+		--ui: rgb(10 10 16 / 0.82);
+		--line: rgb(255 255 255 / 0.1);
+		--mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		position: relative;
+		min-height: 100svh;
+		font-family: Satoshi, ui-sans-serif, system-ui, sans-serif;
+	}
+	.booth-canvas {
+		position: fixed;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		display: none;
+		touch-action: none;
+	}
+	.booth[data-mode='3d'] .booth-canvas,
+	.booth[data-mode='loading'] .booth-canvas {
+		display: block;
+	}
+
+	/* ── Chrome on top of the scene ───────────────────────────────────────── */
+	.booth-top {
+		position: fixed;
+		top: 1.25rem;
+		left: 1.5rem;
+		z-index: 10;
+		pointer-events: none;
+	}
+	.booth-logo {
+		pointer-events: auto;
+		font-family: var(--mono);
+		font-weight: 700;
+		font-size: 1rem;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: #fff;
+		text-decoration: none;
+	}
+	.booth-top p {
+		margin: 0.2rem 0 0;
+		font-family: var(--mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: rgb(233 231 242 / 0.55);
+	}
+
+	.booth-tracklist {
+		position: fixed;
+		left: 1.5rem;
+		bottom: 1.5rem;
+		z-index: 10;
+		width: min(19rem, calc(100vw - 3rem));
+		padding: 0.75rem;
+		border-radius: 0.75rem;
+		background: var(--ui);
+		border: 1px solid var(--line);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		font-family: var(--mono);
+		font-size: 0.85rem;
+	}
+	.tl-head {
+		display: flex;
+		justify-content: space-between;
+		margin: 0 0 0.4rem;
+		padding: 0 0.4rem 0.4rem;
+		border-bottom: 1px solid var(--line);
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: rgb(233 231 242 / 0.5);
+	}
+	.booth-tracklist ol {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.booth-tracklist a {
+		display: grid;
+		grid-template-columns: 2rem 1fr auto;
+		align-items: center;
+		padding: 0.45rem 0.4rem;
+		border-radius: 0.4rem;
+		color: inherit;
+		text-decoration: none;
+		border-left: 3px solid transparent;
+	}
+	.booth-tracklist a:hover,
+	.booth-tracklist a:focus-visible {
+		background: rgb(255 255 255 / 0.06);
+		outline: none;
+	}
+	.booth-tracklist a[aria-current] {
+		background: color-mix(in srgb, var(--c) 18%, transparent);
+		border-left-color: var(--c);
+	}
+	.tl-num {
+		color: var(--c);
+	}
+	.tl-dur {
+		color: rgb(233 231 242 / 0.45);
+		font-size: 0.75rem;
+	}
+	.booth-tracklist a[aria-current] .tl-dur::before {
+		content: '▶ ';
+		color: var(--c);
+	}
+	.tl-actions {
+		display: flex;
+		gap: 0.4rem;
+		margin-top: 0.6rem;
+	}
+	.tl-actions button {
+		flex: 1;
+		padding: 0.45rem 0.5rem;
+		border-radius: 0.4rem;
+		border: 1px solid var(--line);
+		background: rgb(255 255 255 / 0.04);
+		color: inherit;
+		font: inherit;
+		font-size: 0.72rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	.tl-actions button:hover {
+		background: rgb(255 255 255 / 0.1);
+	}
+	.tl-actions button:focus-visible {
+		outline: 2px solid var(--c);
+		outline-offset: 2px;
+	}
+	[data-sound][aria-pressed='true'] {
+		border-color: #2bff86;
+		color: #2bff86;
+	}
+
+	.booth-hint,
+	.booth-loading {
+		position: fixed;
+		left: 50%;
+		bottom: 1.6rem;
+		transform: translateX(-50%);
+		z-index: 5;
+		margin: 0;
+		font-family: var(--mono);
+		font-size: 0.72rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: rgb(233 231 242 / 0.5);
+		pointer-events: none;
+		display: none;
+		white-space: nowrap;
+	}
+	.booth[data-mode='3d'][data-open='false'] .booth-hint,
+	.booth[data-mode='loading'] .booth-loading {
+		display: block;
+	}
+	.booth-reason {
+		display: none;
+	}
+
+	/* ── Section panel ────────────────────────────────────────────────────── */
+	.booth-panel {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 20;
+		width: min(34rem, 100vw);
+		overflow-y: auto;
+		padding: 4.5rem 2.25rem 6rem;
+		background: rgb(8 8 13 / 0.88);
+		border-left: 2px solid var(--c);
+		box-shadow: -30px 0 80px -30px color-mix(in srgb, var(--c) 45%, transparent);
+		backdrop-filter: blur(16px);
+		-webkit-backdrop-filter: blur(16px);
+		transform: translateX(105%);
+		transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+		outline: none;
+	}
+	.booth[data-open='true'] .booth-panel {
+		transform: none;
+	}
+	.booth-eject {
+		position: absolute;
+		top: 1.25rem;
+		right: 1.5rem;
+		padding: 0.4rem 0.75rem;
+		border-radius: 999px;
+		border: 1px solid var(--line);
+		background: rgb(255 255 255 / 0.05);
+		color: inherit;
+		font-family: var(--mono);
+		font-size: 0.72rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	.booth-eject:hover {
+		border-color: var(--c);
+		color: var(--c);
+	}
+	.booth .lab-content {
+		--lab-fg: #ecebf3;
+		--lab-muted: rgb(236 235 243 / 0.58);
+		--lab-accent: var(--c);
+		--lab-rule: rgb(255 255 255 / 0.09);
+		--lab-head-font: var(--mono);
+		--lab-head-case: uppercase;
+	}
+	.booth .lab-h {
+		font-size: 1.9rem;
+		letter-spacing: 0.08em;
+		color: var(--c);
+		text-shadow: 0 0 24px color-mix(in srgb, var(--c) 55%, transparent);
+	}
+
+	/* ── No JS: everything, stacked ───────────────────────────────────────── */
+	.booth[data-mode='static'] .booth-panel {
+		position: static;
+		transform: none;
+		width: auto;
+		max-width: 40rem;
+		margin: 0 auto;
+		padding-top: 7rem;
+		border: 0;
+		box-shadow: none;
+		background: none;
+	}
+	.booth[data-mode='static'] .booth-tracklist,
+	.booth[data-mode='static'] .booth-eject {
+		display: none;
+	}
+	.booth[data-mode='static'] .lab-section + .lab-section {
+		margin-top: 4rem;
+	}
+
+	/* ── Lite: no WebGL, a CSS booth instead ──────────────────────────────── */
+	.booth-lite-bg {
+		display: none;
+	}
+	.booth[data-mode='lite'] .booth-lite-bg {
+		position: fixed;
+		inset: auto 0 0 0;
+		height: 45vh;
+		display: flex;
+		align-items: flex-end;
+		gap: 3px;
+		padding: 0 3px;
+		opacity: 0.35;
+		pointer-events: none;
+		mask-image: linear-gradient(to top, #000, transparent);
+		-webkit-mask-image: linear-gradient(to top, #000, transparent);
+	}
+	.booth-lite-bg span {
+		flex: 1;
+		height: 100%;
+		transform-origin: bottom;
+		background: linear-gradient(to top, #7b5cff, #ff5c8a 60%, #5cb8ff);
+		animation: booth-eq 0.968s ease-in-out infinite alternate;
+		animation-delay: calc(var(--i) * -0.137s);
+	}
+	@keyframes booth-eq {
+		from {
+			transform: scaleY(0.15);
+		}
+		to {
+			transform: scaleY(0.85);
+		}
+	}
+	.booth[data-mode='lite'] {
+		background:
+			radial-gradient(60rem 30rem at 20% -10%, rgb(123 92 255 / 0.35), transparent),
+			radial-gradient(50rem 30rem at 100% 10%, rgb(255 92 138 / 0.22), transparent), #07060b;
+	}
+	.booth[data-mode='lite'] .booth-top {
+		position: relative;
+		top: auto;
+		left: auto;
+		padding: 1.5rem 1rem 0;
+		max-width: 40rem;
+		margin: 0 auto;
+	}
+	.booth[data-mode='lite'] .booth-tracklist {
+		position: relative;
+		left: auto;
+		bottom: auto;
+		width: auto;
+		max-width: 40rem;
+		margin: 1.25rem auto 0;
+	}
+	@media (max-width: 42rem) {
+		.booth[data-mode='lite'] .booth-tracklist {
+			margin: 1.25rem 1rem 0;
+		}
+	}
+	.booth[data-mode='lite'] .booth-panel {
+		position: relative;
+		transform: none;
+		width: auto;
+		max-width: 40rem;
+		margin: 1rem auto 5rem;
+		padding: 1.75rem 1.25rem;
+		border-radius: 0.75rem;
+		border: 1px solid var(--line);
+		border-top: 2px solid var(--c);
+		overflow: visible;
+	}
+	@media (max-width: 42rem) {
+		.booth[data-mode='lite'] .booth-panel {
+			margin: 1rem 1rem 5rem;
+		}
+	}
+	.booth[data-mode='lite'] .booth-eject {
+		display: none;
+	}
+	.booth[data-mode='lite'] .booth-reason {
+		display: block;
+		max-width: 40rem;
+		margin: 0.6rem auto 0;
+		padding: 0 1rem;
+		font-family: var(--mono);
+		font-size: 0.7rem;
+		color: rgb(233 231 242 / 0.45);
+	}
+
+	/* Phones in 3D mode: the tracklist becomes a slim bar, the panel full width. */
+	@media (max-width: 40rem) {
+		.booth[data-mode='3d'] .booth-tracklist {
+			left: 0.75rem;
+			bottom: 4.25rem;
+			width: calc(100vw - 1.5rem);
+		}
+		.booth-hint {
+			display: none !important;
+		}
+		.booth-panel {
+			padding: 4.5rem 1.25rem 6rem;
+		}
+	}
+</style>

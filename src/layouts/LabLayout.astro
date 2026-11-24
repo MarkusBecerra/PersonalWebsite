@@ -1,0 +1,29 @@
+---
+/**
+ * Bare page shell for the experimental versions under /lab: the site's <head>,
+ * none of its header or footer, and the version switcher on top.
+ */
+import BaseHead from '@/components/BaseHead.astro'
+import VersionSwitcher from '@/components/lab/VersionSwitcher.astro'
+import { siteConfig } from '@/site-config'
+
+interface Props {
+	version: string
+	title: string
+	description?: string
+}
+
+const { version, title, description } = Astro.props
+---
+
+<html lang={siteConfig.lang} class='dark' data-theme='dark' data-version={version}>
+	<head>
+		{/* Experiments, not pages: keep them out of search even after launch. */}
+		<BaseHead title={title} description={description ?? siteConfig.description} noindex />
+		<slot name='head' />
+	</head>
+	<body>
+		<slot />
+		<VersionSwitcher current={version} />
+	</body>
+</html>

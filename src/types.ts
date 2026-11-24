@@ -21,4 +21,6 @@ export type SiteMeta = {
 	description?: string
 	ogImage?: string | undefined
 	articleDate?: string | undefined
+	/** Keep this page out of search engines even once the site is public. */
+	noindex?: boolean
 }

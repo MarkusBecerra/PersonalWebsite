@@ -2,44 +2,7 @@
 import PageLayout from '@/layouts/BaseLayout.astro'
 import WorkExperienceCard from '@/components/WorkExperienceCard.astro'
 
-// ─── Skills ───────────────────────────────────────────────────────────────────
-// Replace / extend with your actual skills and honest levels.
-// Levels: 'advanced' | 'intermediate' | 'beginner'
-type Level = 'advanced' | 'intermediate' | 'beginner'
-
-const skills: Array<{ name: string; level: Level }> = [
-	{ name: '[Skill A]', level: 'advanced' },
-	{ name: '[Skill B]', level: 'advanced' },
-	{ name: '[Skill C]', level: 'intermediate' },
-	{ name: '[Skill D]', level: 'intermediate' },
-	{ name: '[Skill E]', level: 'beginner' }
-]
-
-const levels: Level[] = ['advanced', 'intermediate', 'beginner']
-const skillsByLevel = levels
-	.map((level) => ({ level, names: skills.filter((s) => s.level === level).map((s) => s.name) }))
-	.filter((group) => group.names.length > 0)
-
-// ─── Experience ───────────────────────────────────────────────────────────────
-// Add one object per role. Duplicate the template block to add more entries.
-// Fields:
-//   employer  — company or organization name
-//   title     — your job title / role
-//   duration  — e.g. "Jun 2022 – Present" or "Jan 2020 – May 2022"
-//   team      — team or department name
-//   location  — city, state or "Remote" (optional)
-//   skills    — list of tools / languages / frameworks you used in this role
-const experiences = [
-	{
-		employer: '[Company Name]',
-		title: '[Your Title]',
-		duration: '[Start] – [End or Present]',
-		team: '[Team / Department]',
-		location: '[City, State or Remote]',
-		skills: ['[Skill A]', '[Skill B]', '[Skill C]']
-	}
-	// Add more entries here ↑
-]
+import { experiences, skillsByLevel } from '@/data/profile'
 ---
 
 <PageLayout

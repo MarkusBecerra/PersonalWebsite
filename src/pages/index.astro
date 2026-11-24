@@ -2,6 +2,7 @@
 import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/blog/PostPreview.astro'
 import { categoryHref, getAllPosts, sortMDByDate } from '@/utils'
+import { currently } from '@/data/profile'
 
 const MAX_POSTS = 5
 const allPosts = await getAllPosts()
@@ -24,22 +25,6 @@ const pillars = [
 		title: 'Recreation',
 		blurb: 'Climbing, bouldering, and time outside — chasing the next problem and the light.',
 		href: categoryHref('recreation')
-	}
-]
-
-// What I'm in the middle of, one row per hat. Rewrite these as they change;
-// `href` is optional. Keep it to three or four rows.
-const currently: Array<{ verb: string; what: string; href?: string }> = [
-	{ verb: 'Building', what: 'this site, in Astro and Tailwind', href: '/blog/building-this-site/' },
-	{
-		verb: 'Mixing',
-		what: 'a golden-hour house set for the rooftop',
-		href: '/blog/sunset-set-notes/'
-	},
-	{
-		verb: 'Projecting',
-		what: 'a V5 slab that keeps sending me home',
-		href: '/blog/project-of-the-week/'
 	}
 ]
 ---
