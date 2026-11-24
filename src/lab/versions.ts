@@ -25,8 +25,14 @@ export const siteVersions: SiteVersion[] = [
 		blurb: 'An old computer in a dark room, rain outside',
 		href: '/lab/night-shift/'
 	},
-	{ id: 'shelf', name: 'Shelf', blurb: 'A bookshelf, one spine per section' },
-	{ id: 'plain', name: 'Plain', blurb: 'Minimal, almost text-only' }
+	{
+		id: 'level-select',
+		name: 'Level select',
+		blurb: 'A little pixel world; walk to a building to enter',
+		href: '/lab/level-select/'
+	},
+	{ id: 'shelf', name: 'Shelf', blurb: 'A bookshelf; pull a book to read it', href: '/lab/shelf/' },
+	{ id: 'plain', name: 'Plain', blurb: 'Minimal, almost text-only', href: '/lab/plain/' }
 ]
 
 /** The sections every version has to surface, in nav order. */

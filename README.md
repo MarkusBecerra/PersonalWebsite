@@ -68,19 +68,22 @@ picks up the change. Blog posts live in `src/content/blog` (see `WRITING.md`).
 Alternate, more playful takes on the site live under `/lab`, alongside the
 default design:
 
-| Version     | URL                 | What it is                                                    |
-| ----------- | ------------------- | ------------------------------------------------------------- |
-| Booth       | `/lab/booth/`       | A 3D DJ booth. Hot-cue pads on the decks open each section.   |
-| Night shift | `/lab/night-shift/` | An old computer in a dark room with rain outside; a terminal. |
+| Version      | URL                  | What it is                                                       |
+| ------------ | -------------------- | ---------------------------------------------------------------- |
+| Booth        | `/lab/booth/`        | A 3D DJ booth. Hot-cue pads on the decks open each section.      |
+| Night shift  | `/lab/night-shift/`  | An old computer in a dark room with rain outside; a terminal.    |
+| Level select | `/lab/level-select/` | A pixel street at sunset; walk into a building to open it.       |
+| Shelf        | `/lab/shelf/`        | A bookshelf; pull a volume to read it, posts are the slim books. |
+| Plain        | `/lab/plain/`        | One column of plain text, nothing else.                          |
 
 A small **Version** switcher in the bottom-right corner flips between them and
 the default site. It shows while the site is locked; set
 `PUBLIC_VERSION_SWITCHER=true` to keep it after launch, or `false` to hide it.
 The lab pages are always `noindex`.
 
-They're built with plain [three.js](https://threejs.org/) (no models or textures
-to download: everything is primitives and canvas drawings). three.js is only
-fetched on the lab pages, after the page and its text are already on screen.
+Booth and Night shift are built with plain [three.js](https://threejs.org/) (no models or textures
+to download: everything is primitives and canvas drawings). Level select is a 2D canvas, Shelf is CSS, Plain is just HTML. three.js is only
+fetched on the two 3D pages, after the page and its text are already on screen.
 Phones, low-power devices, browsers without WebGL and visitors who prefer reduced
 motion get a lightweight 2D version of the same design; `?lite` and `?3d` in the
 URL force either one. The content itself is ordinary HTML in

@@ -1,0 +1,678 @@
+---
+import LabLayout from '@/layouts/LabLayout.astro'
+import LabContent from '@/components/lab/LabContent.astro'
+import { labSections } from '@/lab/versions'
+import { getAllPosts, sortMDByDate } from '@/utils'
+
+// The four sections are the big volumes; each blog post is a slimmer book below.
+const volumes: Record<string, { color: string; h: number; w: number; sub: string }> = {
+	about: { color: '#7a2e2a', h: 92, w: 58, sub: 'Vol. I' },
+	work: { color: '#24476b', h: 100, w: 66, sub: 'Vol. II' },
+	projects: { color: '#2f5a3e', h: 86, w: 62, sub: 'Vol. III' },
+	blog: { color: '#8a6a2b', h: 96, w: 56, sub: 'Vol. IV' }
+}
+const postColors = ['#3b3f5c', '#6b3a4f', '#2e5b5b', '#5d4b2f', '#46334f', '#2f4a3a', '#6a4a2a']
+const posts = sortMDByDate(await getAllPosts()).slice(0, 7)
+---
+
+<LabLayout
+	version='shelf'
+	title='Shelf'
+	description='Markus Becerra: about, work, projects and writing, as books on a shelf.'
+>
+	<div class='shelf' data-mode='static'>
+		<header class='shelf-top'>
+			<h1>Markus Becerra</h1>
+			<p>Pull a book off the shelf.</p>
+		</header>
+
+		<div class='case' aria-label='Bookshelf'>
+			<div class='row' role='list'>
+				{
+					labSections.map((s) => {
+						const v = volumes[s.id]
+						return (
+							<div role='listitem' class='slot'>
+								<a
+									href={`#${s.id}`}
+									class='book'
+									data-pick={s.id}
+									style={`--c:${v.color};--h:${v.h}%;--w:${v.w}px`}
+								>
+									<span class='spine-sub'>{v.sub}</span>
+									<span class='spine-title'>{s.label}</span>
+									<span class='spine-mark' aria-hidden='true'>
+										MB
+									</span>
+								</a>
+							</div>
+						)
+					})
+				}
+				<div class='decor' aria-hidden='true'>
+					<div class='stack'><i></i><i></i><i></i></div>
+					<div class='record'><span></span></div>
+					<div class='plant'>
+						<i></i><i></i><i></i><i></i><i></i>
+						<b></b>
+					</div>
+				</div>
+			</div>
+			<div class='plank' aria-hidden='true'></div>
+
+			<div class='row posts' role='list' aria-label='Latest writing'>
+				{
+					posts.map((p, i) => (
+						<div role='listitem' class='slot'>
+							<a
+								href={`/blog/${p.id}/`}
+								class='book thin'
+								title={p.data.title}
+								style={`--c:${postColors[i % postColors.length]};--h:${78 + ((i * 7) % 18)}%;--w:${34 + ((i * 5) % 12)}px`}
+							>
+								<span class='spine-title'>{p.data.title}</span>
+							</a>
+						</div>
+					))
+				}
+				<div role='listitem' class='slot'>
+					<a href='/blog/' class='box-file'>
+						<span>All writing</span>
+					</a>
+				</div>
+				<div class='bookend' aria-hidden='true'></div>
+			</div>
+			<div class='plank' aria-hidden='true'></div>
+		</div>
+
+		<div class='reader' aria-label='Open book' role='region'>
+			<div class='spread'>
+				<div class='page left' aria-hidden='true'>
+					<p class='page-sub' data-sub></p>
+					<p class='page-title' data-title></p>
+					<p class='page-orn'>❦</p>
+					<p class='page-by'>Markus Becerra</p>
+				</div>
+				<div class='page right' tabindex='-1'>
+					<button type='button' class='close' data-close aria-label='Close the book'>
+						Put it back
+					</button>
+					<LabContent />
+				</div>
+				<div class='cover' aria-hidden='true'></div>
+			</div>
+		</div>
+	</div>
+</LabLayout>
+
+<script>
+	import { labSections } from '@/lab/versions'
+
+	const root = document.querySelector<HTMLElement>('.shelf')!
+	const page = root.querySelector<HTMLElement>('.page.right')!
+	const ids = labSections.map((s) => s.id as string)
+	const subs: Record<string, string> = {
+		about: 'Vol. I',
+		work: 'Vol. II',
+		projects: 'Vol. III',
+		blog: 'Vol. IV'
+	}
+	root.dataset.mode = 'js'
+
+	function show(id: string | null) {
+		for (const sec of root.querySelectorAll<HTMLElement>('.lab-section'))
+			sec.hidden = sec.dataset.section !== id
+		for (const b of root.querySelectorAll<HTMLElement>('[data-pick]'))
+			b.classList.toggle('out', b.dataset.pick === id)
+		root.dataset.open = id ? 'true' : 'false'
+		if (id) {
+			const book = root.querySelector<HTMLElement>(`[data-pick='${id}']`)!
+			root.style.setProperty('--open-c', getComputedStyle(book).getPropertyValue('--c'))
+			root.querySelector('[data-title]')!.textContent = labSections.find((s) => s.id === id)!.label
+			root.querySelector('[data-sub]')!.textContent = subs[id]
+			page.scrollTop = 0
+			page.focus({ preventScroll: true })
+		}
+	}
+	function pick(id: string) {
+		if (location.hash !== `#${id}`) history.pushState(null, '', `#${id}`)
+		show(id)
+	}
+	function close() {
+		const id = location.hash.slice(1)
+		history.pushState(null, '', location.pathname + location.search)
+		show(null)
+		root.querySelector<HTMLElement>(`[data-pick='${id}']`)?.focus()
+	}
+	root.querySelectorAll<HTMLAnchorElement>('[data-pick]').forEach((a) =>
+		a.addEventListener('click', (e) => {
+			e.preventDefault()
+			pick(a.dataset.pick!)
+		})
+	)
+	root.querySelector('[data-close]')!.addEventListener('click', close)
+	root.querySelector('.reader')!.addEventListener('click', (e) => {
+		if (e.target === e.currentTarget) close()
+	})
+	addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && root.dataset.open === 'true') close()
+	})
+	addEventListener('popstate', () => {
+		const id = location.hash.slice(1)
+		show(ids.includes(id) ? id : null)
+	})
+	const initial = location.hash.slice(1)
+	show(ids.includes(initial) ? initial : null)
+</script>
+
+<style is:global>
+	html[data-version='shelf'],
+	html[data-version='shelf'] body {
+		background: #17201b;
+		color: #efe6d4;
+	}
+	.shelf {
+		--wood: #6b4429;
+		--wood-dark: #3f2716;
+		--paper: #f3ead6;
+		--ink: #2b2118;
+		position: relative;
+		min-height: 100svh;
+		padding: 3rem 1rem 6rem;
+		overflow-x: hidden;
+		/* Lamp-lit wallpaper: a warm pool of light over a faint stripe. */
+		background:
+			radial-gradient(60rem 38rem at 50% 8%, rgb(255 196 120 / 0.22), transparent 70%),
+			repeating-linear-gradient(90deg, rgb(255 255 255 / 0.025) 0 2px, transparent 2px 28px),
+			#17201b;
+		font-family: Satoshi, ui-sans-serif, system-ui, sans-serif;
+	}
+	.shelf-top {
+		max-width: 52rem;
+		margin: 0 auto 2.5rem;
+		text-align: center;
+	}
+	.shelf-top h1 {
+		margin: 0;
+		font-family: Petrona, Georgia, serif;
+		font-size: clamp(2rem, 5vw, 3rem);
+		font-weight: 500;
+		letter-spacing: -0.01em;
+	}
+	.shelf-top p {
+		margin: 0.25rem 0 0;
+		font-family: Petrona, Georgia, serif;
+		font-style: italic;
+		color: rgb(239 230 212 / 0.65);
+	}
+
+	/* ── The case ─────────────────────────────────────────────────────────── */
+	.case {
+		max-width: 52rem;
+		margin: 0 auto;
+		padding: 0 1.1rem;
+		border-radius: 4px;
+		background: linear-gradient(
+			90deg,
+			var(--wood-dark),
+			#2c1a0e 4%,
+			#24160c 50%,
+			#2c1a0e 96%,
+			var(--wood-dark)
+		);
+		box-shadow:
+			inset 18px 0 0 var(--wood),
+			inset -18px 0 0 var(--wood),
+			inset 0 14px 0 var(--wood),
+			0 40px 80px -30px rgb(0 0 0 / 0.8);
+		padding-top: 14px;
+	}
+	.row {
+		display: flex;
+		align-items: flex-end;
+		gap: 4px;
+		height: 15rem;
+		padding: 1.5rem 1.6rem 0;
+		perspective: 900px;
+		/* Shadow cast down from the plank above. */
+		background: linear-gradient(rgb(0 0 0 / 0.55), transparent 3.5rem);
+	}
+	.row.posts {
+		height: 12.5rem;
+	}
+	.plank {
+		height: 18px;
+		margin: 0 -1.1rem;
+		background: linear-gradient(#8a5a37, var(--wood) 40%, var(--wood-dark));
+		box-shadow: 0 6px 10px -4px rgb(0 0 0 / 0.6);
+		position: relative;
+		z-index: 1;
+	}
+	.slot {
+		height: 100%;
+		display: flex;
+		align-items: flex-end;
+	}
+
+	/* ── Books ────────────────────────────────────────────────────────────── */
+	.book {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		width: var(--w);
+		height: var(--h);
+		padding: 1.1rem 0 1rem;
+		border-radius: 3px 3px 2px 2px;
+		color: #f4e7c8;
+		text-decoration: none;
+		background:
+			linear-gradient(
+				90deg,
+				rgb(0 0 0 / 0.35),
+				transparent 18%,
+				rgb(255 255 255 / 0.12) 40%,
+				transparent 60%,
+				rgb(0 0 0 / 0.4)
+			),
+			linear-gradient(
+				transparent 4%,
+				#d8b46a 4%,
+				#d8b46a 4.8%,
+				transparent 4.8%,
+				transparent 95.2%,
+				#d8b46a 95.2%,
+				#d8b46a 96%,
+				transparent 96%
+			),
+			var(--c);
+		box-shadow:
+			inset 0 0 0 1px rgb(0 0 0 / 0.25),
+			2px 0 4px rgb(0 0 0 / 0.4);
+		transform-origin: bottom center;
+		transition:
+			transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+			box-shadow 0.35s;
+		cursor: pointer;
+	}
+	.book:hover,
+	.book:focus-visible {
+		transform: translateY(-14px) rotate(-2deg);
+		box-shadow:
+			inset 0 0 0 1px rgb(0 0 0 / 0.25),
+			6px 10px 18px rgb(0 0 0 / 0.55);
+		outline: none;
+	}
+	.book:focus-visible {
+		box-shadow:
+			0 0 0 2px #17201b,
+			0 0 0 4px #f0c070;
+	}
+	.book.out {
+		transform: translateY(-110%) scale(0.9);
+		opacity: 0;
+	}
+	.spine-title {
+		writing-mode: vertical-rl;
+		transform: rotate(180deg);
+		font-family: Petrona, Georgia, serif;
+		font-size: 1.2rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		flex: 1;
+		display: flex;
+		align-items: center;
+		text-shadow: 0 1px 0 rgb(0 0 0 / 0.5);
+	}
+	.spine-sub,
+	.spine-mark {
+		font-family: Petrona, Georgia, serif;
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: #d8b46a;
+	}
+	.book.thin {
+		padding: 0.6rem 0;
+	}
+	.book.thin .spine-title {
+		font-size: 0.82rem;
+		font-weight: 500;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-height: 100%;
+		display: block;
+	}
+	.slot:nth-child(3n) .book.thin {
+		transform: rotate(0.6deg);
+	}
+	.box-file {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 7.5rem;
+		height: 62%;
+		margin-left: 0.6rem;
+		border-radius: 3px;
+		background: linear-gradient(#c9b48a, #b19a6c);
+		color: var(--ink);
+		font-family: Petrona, Georgia, serif;
+		font-style: italic;
+		text-decoration: none;
+		box-shadow: 2px 0 6px rgb(0 0 0 / 0.4);
+		transition: transform 0.3s;
+	}
+	.box-file span {
+		padding: 0.25rem 0.6rem;
+		background: var(--paper);
+		border: 1px solid rgb(0 0 0 / 0.2);
+	}
+	.box-file:hover,
+	.box-file:focus-visible {
+		transform: translateY(-6px);
+		outline: none;
+	}
+	.bookend {
+		width: 14px;
+		height: 45%;
+		margin-left: auto;
+		background: linear-gradient(#5a5e66, #2e3036);
+		border-radius: 2px 2px 0 0;
+	}
+
+	/* ── Decor: a leaning record and a plant ──────────────────────────────── */
+	.decor {
+		display: flex;
+		align-items: flex-end;
+		gap: 1.5rem;
+		margin-left: auto;
+		height: 100%;
+	}
+	.stack {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.stack i {
+		display: block;
+		height: 1.1rem;
+		border-radius: 2px;
+		box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.25);
+	}
+	.stack i:nth-child(1) {
+		width: 6.5rem;
+		background: #5b6f8a;
+		transform: translateX(6px) rotate(-2deg);
+	}
+	.stack i:nth-child(2) {
+		width: 7.5rem;
+		background: #a5452f;
+	}
+	.stack i:nth-child(3) {
+		width: 8rem;
+		background: #d9c9a0;
+	}
+	.record {
+		width: 8.5rem;
+		height: 8.5rem;
+		border-radius: 4px;
+		background: linear-gradient(135deg, #d0643c, #e9a34a 55%, #f0d27a);
+		transform: rotate(-8deg);
+		transform-origin: bottom left;
+		display: grid;
+		place-items: center;
+		box-shadow: 3px 4px 10px rgb(0 0 0 / 0.5);
+	}
+	.record span {
+		width: 72%;
+		height: 72%;
+		border-radius: 50%;
+		background:
+			radial-gradient(circle, #e9a34a 0 14%, #111 15% 17%, transparent 18%),
+			repeating-radial-gradient(circle, #151515 0 2px, #222 2px 3px);
+		transform: translateX(28%);
+		box-shadow: 0 0 0 1px #000;
+	}
+	.plant {
+		position: relative;
+		width: 4.5rem;
+		height: 9rem;
+	}
+	.plant b {
+		position: absolute;
+		left: 0.6rem;
+		right: 0.6rem;
+		bottom: 0;
+		height: 3.2rem;
+		border-radius: 0 0 0.6rem 0.6rem;
+		background: linear-gradient(90deg, #b5603e, #d98d63 45%, #9b4c2f);
+	}
+	.plant i {
+		position: absolute;
+		bottom: 2.8rem;
+		left: 50%;
+		width: 1.3rem;
+		height: 4.6rem;
+		border-radius: 100% 0;
+		background: linear-gradient(#5f9a5a, #2f6a3a);
+		transform-origin: bottom center;
+	}
+	.plant i:nth-child(1) {
+		transform: translateX(-50%) rotate(-38deg);
+	}
+	.plant i:nth-child(2) {
+		transform: translateX(-50%) rotate(-12deg);
+		height: 5.6rem;
+	}
+	.plant i:nth-child(3) {
+		transform: translateX(-50%) rotate(10deg);
+		height: 5.2rem;
+	}
+	.plant i:nth-child(4) {
+		transform: translateX(-50%) rotate(34deg);
+	}
+	.plant i:nth-child(5) {
+		transform: translateX(-50%) rotate(58deg);
+		height: 3.6rem;
+	}
+
+	/* ── The open book ────────────────────────────────────────────────────── */
+	.reader {
+		position: fixed;
+		inset: 0;
+		z-index: 30;
+		display: grid;
+		place-items: center;
+		padding: 1rem;
+		background: rgb(10 14 12 / 0.72);
+		backdrop-filter: blur(3px);
+		-webkit-backdrop-filter: blur(3px);
+		opacity: 0;
+		visibility: hidden;
+		transition:
+			opacity 0.35s,
+			visibility 0s linear 0.35s;
+		perspective: 1800px;
+	}
+	.shelf[data-open='true'] .reader {
+		opacity: 1;
+		visibility: visible;
+		transition: opacity 0.35s;
+	}
+	.spread {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr 1.6fr;
+		width: min(60rem, 100%);
+		height: min(40rem, calc(100svh - 2rem));
+		padding: 10px;
+		border-radius: 6px;
+		background: var(--open-c, #7a2e2a);
+		box-shadow: 0 40px 90px -20px rgb(0 0 0 / 0.8);
+		transform-style: preserve-3d;
+		transform: rotateX(8deg) scale(0.92);
+		transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+	.shelf[data-open='true'] .spread {
+		transform: none;
+	}
+	.page {
+		background: linear-gradient(90deg, var(--paper), #fbf4e3 92%, #e2d6bb);
+		color: var(--ink);
+	}
+	.page.left {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem;
+		text-align: center;
+		border-radius: 3px 0 0 3px;
+		background: linear-gradient(90deg, #efe4cc, var(--paper) 10%, var(--paper) 88%, #d9cbab);
+		font-family: Petrona, Georgia, serif;
+	}
+	.page-sub {
+		margin: 0;
+		font-size: 0.8rem;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: #8a6a3a;
+	}
+	.page-title {
+		margin: 0.5rem 0;
+		font-size: clamp(2rem, 4vw, 3rem);
+		font-weight: 500;
+		line-height: 1.1;
+	}
+	.page-orn {
+		margin: 0.5rem 0;
+		font-size: 1.6rem;
+		color: #8a6a3a;
+	}
+	.page-by {
+		margin: 0;
+		font-style: italic;
+		color: #6b5a45;
+	}
+	.page.right {
+		position: relative;
+		overflow-y: auto;
+		padding: 2.5rem 2.5rem 3rem;
+		border-radius: 0 3px 3px 0;
+		outline: none;
+	}
+	/* The cover swings open from the spine when the book opens. */
+	.cover {
+		position: absolute;
+		inset: 0 0 0 auto;
+		width: calc(100% / 2.6 * 1.6);
+		border-radius: 0 6px 6px 0;
+		background: var(--open-c, #7a2e2a);
+		transform-origin: left center;
+		transform: rotateY(0deg);
+		backface-visibility: hidden;
+		transition: transform 0.9s cubic-bezier(0.3, 0.7, 0.2, 1) 0.1s;
+		pointer-events: none;
+	}
+	.shelf[data-open='true'] .cover {
+		transform: rotateY(-178deg);
+	}
+	.close {
+		position: sticky;
+		top: -1.5rem;
+		float: right;
+		margin: -1rem -1rem 0 1rem;
+		padding: 0.35rem 0.8rem;
+		border: 1px solid rgb(43 33 24 / 0.25);
+		border-radius: 999px;
+		background: var(--paper);
+		color: var(--ink);
+		font-family: Petrona, Georgia, serif;
+		font-style: italic;
+		cursor: pointer;
+		z-index: 2;
+	}
+	.close:hover {
+		background: #fff;
+	}
+	.shelf .lab-content {
+		--lab-fg: var(--ink);
+		--lab-muted: #6b5a45;
+		--lab-accent: #8a3b1e;
+		--lab-rule: rgb(43 33 24 / 0.14);
+		--lab-head-font: Petrona, Georgia, serif;
+	}
+	/* The left page already carries the title. */
+	.shelf[data-mode='js'] .lab-h {
+		display: none;
+	}
+	.shelf .lab-h {
+		font-size: 2rem;
+		font-weight: 500;
+	}
+	@media (max-width: 44rem) {
+		.shelf[data-mode='js'] .lab-h {
+			display: block;
+		}
+	}
+	.shelf .lab-sub {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+	}
+
+	/* No JS: no reader, just the pages printed below the shelf. */
+	.shelf[data-mode='static'] .reader {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+		background: none;
+		backdrop-filter: none;
+		margin-top: 3rem;
+	}
+	.shelf[data-mode='static'] .spread {
+		height: auto;
+		grid-template-columns: 1fr;
+		transform: none;
+	}
+	.shelf[data-mode='static'] .page.left,
+	.shelf[data-mode='static'] .cover,
+	.shelf[data-mode='static'] .close {
+		display: none;
+	}
+	.shelf[data-mode='static'] .lab-section + .lab-section {
+		margin-top: 3rem;
+	}
+
+	/* Phones: the shelf scrolls sideways, the book opens to a single page. */
+	@media (max-width: 44rem) {
+		.case {
+			overflow-x: auto;
+			overscroll-behavior-x: contain;
+		}
+		.row {
+			width: max-content;
+			min-width: 100%;
+		}
+		.decor {
+			margin-left: 1.5rem;
+		}
+		.spread {
+			grid-template-columns: 1fr;
+		}
+		.page.left,
+		.cover {
+			display: none;
+		}
+		.page.right {
+			padding: 2rem 1.25rem 2.5rem;
+			border-radius: 3px;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.cover {
+			display: none;
+		}
+	}
+</style>

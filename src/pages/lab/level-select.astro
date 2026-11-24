@@ -1,0 +1,440 @@
+---
+import LabLayout from '@/layouts/LabLayout.astro'
+import LabContent from '@/components/lab/LabContent.astro'
+import { labSections } from '@/lab/versions'
+---
+
+<LabLayout
+	version='level-select'
+	title='Level select'
+	description='Markus Becerra: about, work, projects and writing, as a tiny pixel world.'
+>
+	<Fragment slot='head'>
+		<link
+			rel='stylesheet'
+			href='https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'
+		/>
+	</Fragment>
+
+	<div class='lv' data-mode='static' data-open='false'>
+		<div class='lv-stage'>
+			<canvas
+				class='lv-canvas'
+				aria-label='A pixel street with four buildings. Use the level list below to enter one.'
+			></canvas>
+			<p class='lv-start' aria-hidden='true'>Loading world 1-1…</p>
+		</div>
+
+		<div class='lv-bar'>
+			<nav class='lv-levels' aria-label='Level list'>
+				{
+					labSections.map((s, i) => (
+						<a href={`#${s.id}`} data-pick={s.id}>
+							<span>1-{i + 1}</span> {s.label}
+						</a>
+					))
+				}
+			</nav>
+			<p class='lv-help'>
+				<kbd>←</kbd><kbd>→</kbd> walk <kbd>↑</kbd> enter <kbd>space</kbd> jump, or tap a building
+			</p>
+			<button type='button' class='lv-sound' data-sound aria-pressed='false'>Sound off</button>
+		</div>
+
+		<div class='lv-pad' aria-hidden='true'>
+			<div>
+				<button type='button' data-key='left' tabindex='-1'>◀</button>
+				<button type='button' data-key='right' tabindex='-1'>▶</button>
+			</div>
+			<div>
+				<button type='button' data-key='jump' tabindex='-1'>B</button>
+				<button type='button' data-key='enter' tabindex='-1'>A</button>
+			</div>
+		</div>
+
+		<div
+			class='lv-panel'
+			data-panel
+			role='dialog'
+			aria-modal='true'
+			aria-labelledby='lv-panel-title'
+		>
+			<div class='lv-box'>
+				<p class='lv-box-head'>
+					<span id='lv-panel-title' data-title>About</span>
+					<button type='button' data-close>Exit ✕</button>
+				</p>
+				<div class='lv-box-body' tabindex='-1'>
+					<LabContent />
+				</div>
+			</div>
+		</div>
+	</div>
+</LabLayout>
+
+<script>
+	import { labSections } from '@/lab/versions'
+	import { mountGame } from '@/lab/level-select/game'
+
+	const root = document.querySelector<HTMLElement>('.lv')!
+	const canvas = root.querySelector<HTMLCanvasElement>('.lv-canvas')!
+	const body = root.querySelector<HTMLElement>('.lv-box-body')!
+	const soundBtn = root.querySelector<HTMLButtonElement>('[data-sound]')!
+	const ids = labSections.map((s) => s.id as string)
+	const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+	// ─── Chiptune blips (off until asked) ────────────────────────────────────
+	let audio: AudioContext | null = null
+	let soundOn = false
+	function blip(name: 'coin' | 'jump' | 'door') {
+		if (!soundOn || !audio) return
+		const notes = { coin: [988, 1319], jump: [392, 660], door: [523, 392, 262] }[name]
+		const t0 = audio.currentTime
+		notes.forEach((f, i) => {
+			const o = audio!.createOscillator()
+			const g = audio!.createGain()
+			o.type = 'square'
+			o.frequency.value = f
+			g.gain.setValueAtTime(0.06, t0 + i * 0.07)
+			g.gain.exponentialRampToValueAtTime(0.001, t0 + i * 0.07 + 0.09)
+			o.connect(g).connect(audio!.destination)
+			o.start(t0 + i * 0.07)
+			o.stop(t0 + i * 0.07 + 0.1)
+		})
+	}
+	soundBtn.addEventListener('click', async () => {
+		audio ??= new AudioContext()
+		await audio.resume()
+		soundOn = !soundOn
+		soundBtn.setAttribute('aria-pressed', String(soundOn))
+		soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off'
+		blip('coin')
+	})
+
+	// ─── Panel ───────────────────────────────────────────────────────────────
+	function show(id: string | null) {
+		for (const sec of root.querySelectorAll<HTMLElement>('.lab-section'))
+			sec.hidden = sec.dataset.section !== id
+		for (const a of root.querySelectorAll<HTMLElement>('[data-pick]')) {
+			if (a.dataset.pick === id) a.setAttribute('aria-current', 'true')
+			else a.removeAttribute('aria-current')
+		}
+		root.dataset.open = id ? 'true' : 'false'
+		if (id) {
+			root.querySelector('[data-title]')!.textContent = labSections.find((s) => s.id === id)!.label
+			body.scrollTop = 0
+			body.focus({ preventScroll: true })
+		}
+	}
+
+	let game: ReturnType<typeof mountGame> | null = null
+
+	function open(id: string) {
+		if (location.hash !== `#${id}`) history.pushState(null, '', `#${id}`)
+		show(id)
+	}
+	function close() {
+		const id = location.hash.slice(1)
+		history.pushState(null, '', location.pathname + location.search)
+		show(null)
+		game?.exitBuilding()
+		canvas.focus?.()
+		root.querySelector<HTMLElement>(`[data-pick='${id}']`)?.blur()
+	}
+
+	root.querySelectorAll<HTMLAnchorElement>('[data-pick]').forEach((a) =>
+		a.addEventListener('click', (e) => {
+			e.preventDefault()
+			if (game) game.goTo(a.dataset.pick!)
+			else open(a.dataset.pick!)
+		})
+	)
+	root.querySelector('[data-close]')!.addEventListener('click', close)
+	root.querySelector('.lv-panel')!.addEventListener('click', (e) => {
+		if (e.target === e.currentTarget) close()
+	})
+	addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && root.dataset.open === 'true') close()
+	})
+	addEventListener('popstate', () => {
+		const id = location.hash.slice(1)
+		if (ids.includes(id)) show(id)
+		else if (root.dataset.open === 'true') {
+			show(null)
+			game?.exitBuilding()
+		}
+	})
+
+	// Touch pad: hold to walk.
+	root.querySelectorAll<HTMLButtonElement>('[data-key]').forEach((b) => {
+		const k = b.dataset.key as 'left' | 'right' | 'jump' | 'enter'
+		b.addEventListener('pointerdown', (e) => {
+			e.preventDefault()
+			game?.press(k, true)
+		})
+		for (const ev of ['pointerup', 'pointerleave', 'pointercancel'])
+			b.addEventListener(ev, () => game?.press(k, false))
+	})
+
+	// The pixel font has to be ready before the canvas draws text with it.
+	root.dataset.mode = 'js'
+	show(null)
+	document.fonts
+		.load('8px "Press Start 2P"')
+		.catch(() => undefined)
+		.then(() => {
+			game = mountGame(canvas, {
+				sections: labSections,
+				onEnter: open,
+				onSound: blip,
+				reducedMotion
+			})
+			root.dataset.mode = 'game'
+			const initial = location.hash.slice(1)
+			if (ids.includes(initial)) game.goTo(initial)
+		})
+</script>
+
+<style is:global>
+	html[data-version='level-select'],
+	html[data-version='level-select'] body {
+		background: #140f22;
+		color: #fff7e6;
+	}
+	.lv {
+		--px: 'Press Start 2P', ui-monospace, monospace;
+		min-height: 100svh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		padding: 1rem 1rem 5rem;
+		font-family: Satoshi, ui-sans-serif, system-ui, sans-serif;
+	}
+	.lv-stage {
+		position: relative;
+		width: min(100%, calc((100svh - 11rem) * 16 / 9));
+		aspect-ratio: 16 / 9;
+		border: 4px solid #fff7e6;
+		box-shadow:
+			0 0 0 4px #1a1426,
+			0 0 0 8px #5e2a6e,
+			0 30px 60px -20px rgb(0 0 0 / 0.7);
+		background: #2a1b4a;
+	}
+	.lv-canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+		image-rendering: pixelated;
+		image-rendering: crisp-edges;
+		touch-action: manipulation;
+	}
+	.lv-start {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		margin: 0;
+		font-family: var(--px);
+		font-size: 0.75rem;
+	}
+	.lv[data-mode='game'] .lv-start {
+		display: none;
+	}
+	.lv[data-mode='static'] .lv-stage {
+		display: none;
+	}
+
+	.lv-bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem 1.5rem;
+		width: min(100%, 60rem);
+	}
+	.lv-levels {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.lv-levels a,
+	.lv-sound,
+	.lv-pad button,
+	.lv-box-head button {
+		padding: 0.55rem 0.7rem;
+		border: 2px solid #fff7e6;
+		background: #1a1426;
+		color: #fff7e6;
+		font-family: var(--px);
+		font-size: 0.6rem;
+		line-height: 1;
+		text-decoration: none;
+		cursor: pointer;
+		box-shadow: 3px 3px 0 #5e2a6e;
+	}
+	.lv-levels a span {
+		color: #ffd23f;
+		margin-right: 0.3rem;
+	}
+	.lv-levels a:hover,
+	.lv-levels a:focus-visible,
+	.lv-levels a[aria-current],
+	.lv-sound:hover,
+	.lv-box-head button:hover {
+		background: #fff7e6;
+		color: #1a1426;
+		outline: none;
+	}
+	.lv-sound[aria-pressed='true'] {
+		border-color: #3ee6a4;
+		color: #3ee6a4;
+	}
+	.lv-help {
+		margin: 0;
+		font-size: 0.8rem;
+		color: rgb(255 247 230 / 0.6);
+	}
+	.lv-help kbd {
+		display: inline-block;
+		min-width: 1.4rem;
+		margin: 0 0.1rem;
+		padding: 0.1rem 0.3rem;
+		border: 1px solid rgb(255 247 230 / 0.35);
+		border-radius: 3px;
+		font: inherit;
+		text-align: center;
+	}
+
+	/* On-screen pad for touch screens. */
+	.lv-pad {
+		display: none;
+	}
+	@media (pointer: coarse) {
+		.lv[data-mode='game'] .lv-pad {
+			position: fixed;
+			left: 0;
+			right: 0;
+			bottom: 4.25rem;
+			z-index: 5;
+			display: flex;
+			justify-content: space-between;
+			padding: 0 1rem;
+			pointer-events: none;
+		}
+		.lv-pad div {
+			display: flex;
+			gap: 0.75rem;
+			pointer-events: auto;
+		}
+		.lv-pad button {
+			width: 3.4rem;
+			height: 3.4rem;
+			font-size: 0.9rem;
+			border-radius: 50%;
+			user-select: none;
+			-webkit-user-select: none;
+			touch-action: none;
+		}
+		.lv-help {
+			display: none;
+		}
+		.lv {
+			justify-content: flex-start;
+			padding-top: 1.5rem;
+		}
+	}
+
+	/* ── The text box ─────────────────────────────────────────────────────── */
+	.lv-panel {
+		position: fixed;
+		inset: 0;
+		z-index: 30;
+		display: grid;
+		place-items: center;
+		padding: 1rem;
+		background: rgb(20 15 34 / 0.7);
+		opacity: 0;
+		visibility: hidden;
+		transition:
+			opacity 0.2s steps(3),
+			visibility 0s linear 0.2s;
+	}
+	.lv[data-open='true'] .lv-panel {
+		opacity: 1;
+		visibility: visible;
+		transition: opacity 0.2s steps(3);
+	}
+	.lv-box {
+		display: flex;
+		flex-direction: column;
+		width: min(44rem, 100%);
+		max-height: min(42rem, calc(100svh - 2rem));
+		background: #1a1426;
+		border: 4px solid #fff7e6;
+		box-shadow:
+			0 0 0 4px #1a1426,
+			0 0 0 8px #3d2160,
+			8px 8px 0 8px rgb(0 0 0 / 0.4);
+	}
+	.lv-box-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin: 0;
+		padding: 0.9rem 1.1rem;
+		border-bottom: 4px solid #fff7e6;
+		font-family: var(--px);
+		font-size: 0.85rem;
+		color: #ffd23f;
+	}
+	.lv-box-body {
+		overflow-y: auto;
+		padding: 1rem 1.4rem 1.6rem;
+		outline: none;
+	}
+	.lv .lab-content {
+		--lab-fg: #fff7e6;
+		--lab-muted: rgb(255 247 230 / 0.62);
+		--lab-accent: #ffd23f;
+		--lab-rule: rgb(255 247 230 / 0.14);
+		--lab-head-font: var(--px);
+		--lab-head-case: uppercase;
+	}
+	.lv .lab-h {
+		display: none; /* the box header already names the level */
+	}
+	.lv .lab-sub {
+		font-size: 0.6rem;
+		color: #3ee6a4;
+		line-height: 1.6;
+	}
+
+	/* No JS: no game, every level printed in one long box. */
+	.lv[data-mode='static'] .lv-panel {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+		background: none;
+		padding: 0;
+	}
+	.lv[data-mode='static'] .lv-box {
+		max-height: none;
+	}
+	.lv[data-mode='static'] .lv-box-head,
+	.lv[data-mode='static'] .lv-sound,
+	.lv[data-mode='static'] .lv-help {
+		display: none;
+	}
+	.lv[data-mode='static'] .lab-h {
+		display: block;
+		font-size: 0.9rem;
+		color: #ffd23f;
+	}
+	.lv[data-mode='static'] .lab-section + .lab-section {
+		margin-top: 2.5rem;
+	}
+</style>
