@@ -1,0 +1,716 @@
+---
+import LabLayout from '@/layouts/LabLayout.astro'
+import LabContent from '@/components/lab/LabContent.astro'
+import { labSections } from '@/lab/versions'
+---
+
+<LabLayout
+	version='night-shift'
+	title='Night shift'
+	description='Markus Becerra, working late: about, work, projects and writing.'
+>
+	<Fragment slot='head'>
+		<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=VT323&display=swap' />
+	</Fragment>
+
+	<div class='ns' data-mode='static' data-state='terminal'>
+		<canvas class='ns-canvas' aria-hidden='true'></canvas>
+		<div class='ns-rain' aria-hidden='true'></div>
+
+		<header class='ns-top'>
+			<p class='ns-name'>Markus Becerra</p>
+			<p class='ns-sub'>night shift <span aria-hidden='true'>·</span> raining outside</p>
+		</header>
+
+		<div class='ns-desk-ui'>
+			<p class='ns-hint'>Click the monitor to log in. The lamp and the window do things too.</p>
+			<div class='ns-actions'>
+				<button type='button' data-enter>Log in</button>
+				<button type='button' data-sound aria-pressed='false'>Rain sound</button>
+				<button type='button' data-mode-toggle>Lite version</button>
+			</div>
+		</div>
+		<p class='ns-loading' aria-live='polite'>Warming up the tube…</p>
+
+		<section class='ns-terminal' aria-label='Terminal'>
+			<div class='ns-bezel'>
+				<div class='ns-screen'>
+					<div class='ns-scroll' tabindex='-1'>
+						<p class='ns-banner'>Markus Becerra</p>
+						<p class='ns-sys'>
+							Logged in as guest. Type <kbd>help</kbd>, or pick a file below.
+							<span class='ns-reason' data-reason></span>
+						</p>
+						<nav class='ns-menu' aria-label='Sections'>
+							{
+								labSections.map((s, i) => (
+									<a href={`#${s.id}`} data-pick={s.id}>
+										<span aria-hidden='true'>[{i + 1}]</span> {s.id}.txt
+									</a>
+								))
+							}
+							<button type='button' class='ns-exit' data-exit>
+								<span aria-hidden='true'>[esc]</span> log out
+							</button>
+						</nav>
+						<div class='ns-out' data-out aria-live='polite'></div>
+						<LabContent />
+						<form class='ns-prompt' data-prompt autocomplete='off'>
+							<label for='ns-cmd'>guest@nightshift:~$</label>
+							<input id='ns-cmd' name='cmd' spellcheck='false' autocapitalize='off' />
+						</form>
+					</div>
+				</div>
+				<div class='ns-bezel-foot' aria-hidden='true'>
+					<span class='ns-badge'>NIGHTSHIFT</span>
+					<span class='ns-power'></span>
+				</div>
+			</div>
+		</section>
+	</div>
+</LabLayout>
+
+<script>
+	import { labSections } from '@/lab/versions'
+	import { decideRenderMode, setLitePreference } from '@/lab/runtime'
+	import { createRain } from '@/lab/night-shift/rain'
+
+	const root = document.querySelector<HTMLElement>('.ns')!
+	const canvas = root.querySelector<HTMLCanvasElement>('.ns-canvas')!
+	const scroll = root.querySelector<HTMLElement>('.ns-scroll')!
+	const out = root.querySelector<HTMLElement>('[data-out]')!
+	const form = root.querySelector<HTMLFormElement>('[data-prompt]')!
+	const input = form.querySelector<HTMLInputElement>('input')!
+	const soundBtn = root.querySelector<HTMLButtonElement>('[data-sound]')!
+	const modeBtn = root.querySelector<HTMLButtonElement>('[data-mode-toggle]')!
+	const ids = labSections.map((s) => s.id as string)
+
+	const rain = createRain()
+	let scene: { zoomIn(): Promise<void>; zoomOut(): void } | null = null
+
+	const decision = decideRenderMode()
+	const lite = decision.mode === 'lite'
+	root.dataset.mode = lite ? 'lite' : 'loading'
+	root.dataset.state = lite ? 'terminal' : 'desk'
+	modeBtn.textContent = lite ? '3D version' : 'Lite version'
+	if (lite && decision.reason)
+		root.querySelector('[data-reason]')!.textContent =
+			`(${decision.reason}; this is the lite version. Type 3d to try the room.)`
+
+	function switchMode() {
+		setLitePreference(!lite)
+		const url = new URL(location.href)
+		url.searchParams.delete('lite')
+		url.searchParams.delete('3d')
+		if (lite) url.searchParams.set('3d', '')
+		location.href = url.toString()
+	}
+	modeBtn.addEventListener('click', switchMode)
+
+	// ─── Terminal ────────────────────────────────────────────────────────────
+	function print(text: string, cls = '') {
+		const line = document.createElement('p')
+		line.textContent = text
+		if (cls) line.className = cls
+		out.append(line)
+	}
+
+	function showSection(id: string | null) {
+		for (const sec of root.querySelectorAll<HTMLElement>('.lab-section')) {
+			sec.hidden = sec.dataset.section !== id
+		}
+		for (const a of root.querySelectorAll<HTMLElement>('[data-pick]')) {
+			if (a.dataset.pick === id) a.setAttribute('aria-current', 'true')
+			else a.removeAttribute('aria-current')
+		}
+	}
+
+	function open(id: string, echo = true) {
+		out.textContent = ''
+		if (echo) print(`guest@nightshift:~$ cat ${id}.txt`, 'ns-echo')
+		showSection(id)
+		if (location.hash !== `#${id}`) history.pushState(null, '', `#${id}`)
+		scroll.scrollTop = 0
+	}
+
+	const commands: Record<string, (arg: string) => void> = {
+		help() {
+			print('Commands:')
+			print('  ls                list files')
+			print('  cat <file>        read a file (about, work, projects, blog)')
+			print('  rain              toggle the rain sound')
+			print('  clear             clear the screen')
+			print(
+				lite
+					? '  3d                try the 3D room'
+					: '  exit              log out, back to the room'
+			)
+		},
+		ls() {
+			print(ids.map((id) => `${id}.txt`).join('   '))
+		},
+		cat(arg) {
+			const id = arg.replace(/\.txt$/, '').replace(/\/$/, '')
+			if (ids.includes(id)) open(id, false)
+			else print(`cat: ${arg || '(nothing)'}: no such file`)
+		},
+		clear() {
+			out.textContent = ''
+			showSection(null)
+			history.pushState(null, '', location.pathname + location.search)
+		},
+		rain() {
+			toggleRain()
+			print(rain.playing ? 'rain: on' : 'rain: off')
+		},
+		whoami() {
+			print('guest. The owner is Markus: engineer by trade, DJ by night, climber by weekend.')
+		},
+		date() {
+			print(new Date().toString())
+		},
+		sudo() {
+			print('Nice try.')
+		},
+		exit() {
+			if (lite) print('Nowhere to go: this is the lite version. Type 3d for the room.')
+			else logout()
+		},
+		'3d'() {
+			if (lite) switchMode()
+			else print('You are already in the room.')
+		}
+	}
+	commands.open = commands.cat
+	commands.cd = commands.cat
+	commands.logout = commands.exit
+	commands.dir = commands.ls
+
+	form.addEventListener('submit', (e) => {
+		e.preventDefault()
+		const raw = input.value.trim()
+		input.value = ''
+		if (!raw) return
+		out.textContent = ''
+		print(`guest@nightshift:~$ ${raw}`, 'ns-echo')
+		const [cmd, ...rest] = raw.toLowerCase().split(/\s+/)
+		const arg = rest.join(' ')
+		if (commands[cmd]) commands[cmd](arg)
+		else if (ids.includes(cmd.replace(/\.txt$/, ''))) open(cmd.replace(/\.txt$/, ''), false)
+		else print(`${cmd}: command not found. Type help.`)
+		if (!['cat', 'open', 'cd'].includes(cmd) && !ids.includes(cmd)) showSection(null)
+		scroll.scrollTop = 0
+	})
+
+	root.querySelectorAll<HTMLAnchorElement>('[data-pick]').forEach((a) =>
+		a.addEventListener('click', (e) => {
+			e.preventDefault()
+			open(a.dataset.pick!)
+		})
+	)
+
+	// Number keys jump to files, like an old menu system.
+	addEventListener('keydown', (e) => {
+		if (root.dataset.state !== 'terminal') return
+		if (e.key === 'Escape') {
+			e.preventDefault()
+			if (!lite) logout()
+			return
+		}
+		if (document.activeElement === input && input.value) return
+		const n = Number(e.key)
+		if (n >= 1 && n <= ids.length) {
+			e.preventDefault()
+			open(ids[n - 1])
+		}
+	})
+	root
+		.querySelector('[data-exit]')!
+		.addEventListener('click', () => (lite ? commands.exit('') : logout()))
+
+	// ─── Room ↔ terminal ─────────────────────────────────────────────────────
+	async function login(section?: string | null) {
+		if (root.dataset.state !== 'desk') return
+		root.dataset.state = 'entering'
+		await scene?.zoomIn()
+		root.dataset.state = 'terminal'
+		if (section) open(section)
+		else {
+			out.textContent = ''
+			showSection(null)
+		}
+		input.focus({ preventScroll: true })
+	}
+
+	function logout() {
+		root.dataset.state = 'desk'
+		history.pushState(null, '', location.pathname + location.search)
+		scene?.zoomOut()
+		input.blur()
+	}
+
+	root.querySelector('[data-enter]')!.addEventListener('click', () => login())
+
+	addEventListener('popstate', () => {
+		const id = location.hash.slice(1)
+		if (ids.includes(id)) {
+			if (root.dataset.state === 'desk') login(id)
+			else open(id, true)
+		} else if (!lite && root.dataset.state === 'terminal') logout()
+		else showSection(null)
+	})
+
+	async function toggleRain() {
+		if (rain.playing) rain.stop()
+		else await rain.start()
+		soundBtn.setAttribute('aria-pressed', String(rain.playing))
+	}
+	soundBtn.addEventListener('click', toggleRain)
+
+	// Initial state: a deep link opens straight into that file.
+	const initial = ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : null
+	showSection(lite ? (initial ?? null) : null)
+	if (lite && initial) open(initial)
+
+	if (!lite) {
+		const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1))
+		idle(async () => {
+			try {
+				const { mountNightShift } = await import('@/lab/night-shift/scene')
+				scene = mountNightShift(canvas, {
+					onEnter: () => login(),
+					onLightning: () => rain.thunder(0.6 + Math.random())
+				})
+				root.dataset.mode = '3d'
+				if (initial) login(initial)
+			} catch (err) {
+				console.error(err)
+				setLitePreference(true)
+				location.reload()
+			}
+		})
+	}
+</script>
+
+<style is:global>
+	html[data-version='night-shift'],
+	html[data-version='night-shift'] body {
+		background: #05070d;
+		color: #d8e2f0;
+	}
+	.ns {
+		--phosphor: #7dffb0;
+		--phosphor-dim: rgb(125 255 176 / 0.6);
+		--amber: #ffd27a;
+		--term-font: 'VT323', ui-monospace, Menlo, Consolas, monospace;
+		position: relative;
+		min-height: 100svh;
+		font-family: Satoshi, ui-sans-serif, system-ui, sans-serif;
+	}
+	.ns-canvas {
+		position: fixed;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		display: none;
+	}
+	.ns[data-mode='3d'] .ns-canvas,
+	.ns[data-mode='loading'] .ns-canvas {
+		display: block;
+	}
+
+	.ns-top {
+		position: fixed;
+		top: 1.25rem;
+		left: 1.5rem;
+		z-index: 10;
+		pointer-events: none;
+		font-family: var(--term-font);
+		transition: opacity 0.4s;
+	}
+	.ns-name {
+		margin: 0;
+		font-size: 1.6rem;
+		letter-spacing: 0.06em;
+		color: #e9eef8;
+	}
+	.ns-sub {
+		margin: 0;
+		font-size: 1.05rem;
+		color: rgb(216 226 240 / 0.55);
+	}
+
+	.ns-desk-ui {
+		position: fixed;
+		left: 50%;
+		bottom: 1.5rem;
+		transform: translateX(-50%);
+		z-index: 10;
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.6rem;
+		width: max-content;
+		max-width: calc(100vw - 2rem);
+		text-align: center;
+	}
+	.ns[data-mode='3d'][data-state='desk'] .ns-desk-ui {
+		display: flex;
+	}
+	.ns-hint {
+		margin: 0;
+		font-family: var(--term-font);
+		font-size: 1.2rem;
+		color: rgb(216 226 240 / 0.7);
+	}
+	.ns-actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.5rem;
+	}
+	.ns-actions button {
+		padding: 0.45rem 0.9rem;
+		border-radius: 999px;
+		border: 1px solid rgb(255 255 255 / 0.16);
+		background: rgb(8 10 18 / 0.7);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		color: inherit;
+		font-size: 0.8rem;
+		cursor: pointer;
+	}
+	.ns-actions button:hover {
+		border-color: var(--phosphor);
+		color: var(--phosphor);
+	}
+	.ns-actions button:focus-visible {
+		outline: 2px solid var(--phosphor);
+		outline-offset: 2px;
+	}
+	[data-sound][aria-pressed='true'] {
+		border-color: #9fb6ff !important;
+		color: #9fb6ff !important;
+	}
+	.ns-loading {
+		display: none;
+		position: fixed;
+		left: 50%;
+		bottom: 2rem;
+		transform: translateX(-50%);
+		margin: 0;
+		font-family: var(--term-font);
+		font-size: 1.2rem;
+		color: var(--phosphor-dim);
+	}
+	.ns[data-mode='loading'] .ns-loading {
+		display: block;
+	}
+
+	/* ── The terminal (a monitor bezel around a phosphor screen) ──────────── */
+	.ns-terminal {
+		position: fixed;
+		inset: 0;
+		z-index: 20;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: clamp(0.5rem, 2vw, 1.5rem);
+		opacity: 0;
+		visibility: hidden;
+		transition:
+			opacity 0.5s ease,
+			visibility 0s linear 0.5s;
+	}
+	.ns[data-state='terminal'] .ns-terminal {
+		background: rgb(3 5 10 / 0.85);
+		opacity: 1;
+		visibility: visible;
+		transition:
+			opacity 0.5s ease,
+			visibility 0s;
+	}
+	.ns[data-state='terminal'] .ns-top {
+		opacity: 0;
+	}
+	.ns-bezel {
+		width: min(64rem, 100%);
+		height: min(46rem, 100%);
+		display: flex;
+		flex-direction: column;
+		padding: clamp(0.75rem, 3vw, 2.25rem) clamp(0.75rem, 3vw, 2.25rem) 0;
+		border-radius: 1.5rem;
+		background: linear-gradient(#d4c9ab, #bcb08f);
+		box-shadow:
+			inset 0 2px 0 rgb(255 255 255 / 0.35),
+			inset 0 -6px 12px rgb(0 0 0 / 0.15),
+			0 30px 80px -20px rgb(0 0 0 / 0.8);
+	}
+	.ns-screen {
+		position: relative;
+		flex: 1;
+		min-height: 0;
+		border-radius: 1.1rem / 1.4rem;
+		background: radial-gradient(ellipse at center, #0b2a18 0%, #04120a 70%, #020805 100%);
+		box-shadow:
+			inset 0 0 0 3px #2b281f,
+			inset 0 0 60px rgb(0 0 0 / 0.85);
+		overflow: hidden;
+	}
+	/* Scanlines and vignette on top of the text. */
+	.ns-screen::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background:
+			repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.18) 0 2px, transparent 2px 4px),
+			radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 0.45) 100%);
+		animation: ns-flicker 4s infinite steps(1);
+	}
+	@keyframes ns-flicker {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		47% {
+			opacity: 0.85;
+		}
+		48% {
+			opacity: 1;
+		}
+	}
+	.ns-bezel-foot {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: clamp(1.75rem, 4vw, 2.75rem);
+		padding: 0 0.5rem;
+	}
+	.ns-badge {
+		font-family: var(--term-font);
+		font-size: 0.95rem;
+		letter-spacing: 0.25em;
+		color: #6d6450;
+	}
+	.ns-power {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 999px;
+		background: #39ff7a;
+		box-shadow: 0 0 8px #39ff7a;
+	}
+
+	.ns-scroll {
+		height: 100%;
+		overflow-y: auto;
+		padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3.5vw, 2.5rem) 2.5rem;
+		color: var(--phosphor);
+		font-family: var(--term-font);
+		font-size: 1.3rem;
+		line-height: 1.35;
+		text-shadow: 0 0 6px rgb(125 255 176 / 0.55);
+		scrollbar-color: var(--phosphor-dim) transparent;
+		outline: none;
+	}
+	.ns-banner {
+		margin: 0 0 0.25rem;
+		font-size: clamp(2.2rem, 6vw, 3.6rem);
+		line-height: 1;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--amber);
+		text-shadow: 0 0 8px rgb(255 210 122 / 0.5);
+	}
+	.ns-sys {
+		margin: 0 0 0.75rem;
+		color: var(--phosphor-dim);
+	}
+	.ns-sys kbd {
+		font: inherit;
+		color: var(--amber);
+	}
+	.ns-reason {
+		display: block;
+	}
+	.ns-menu {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1.4rem;
+		padding: 0.5rem 0;
+		border-top: 1px dashed rgb(125 255 176 / 0.35);
+		border-bottom: 1px dashed rgb(125 255 176 / 0.35);
+	}
+	.ns-menu a,
+	.ns-menu button {
+		color: var(--phosphor);
+		text-decoration: none;
+		background: none;
+		border: 0;
+		padding: 0 0.2rem;
+		font: inherit;
+		cursor: pointer;
+	}
+	.ns-menu a span,
+	.ns-menu button span {
+		color: var(--amber);
+	}
+	.ns-menu a:hover,
+	.ns-menu a:focus-visible,
+	.ns-menu button:hover,
+	.ns-menu button:focus-visible,
+	.ns-menu a[aria-current] {
+		background: var(--phosphor);
+		color: #04120a;
+		text-shadow: none;
+		outline: none;
+	}
+	.ns-menu a:hover span,
+	.ns-menu a[aria-current] span,
+	.ns-menu a:focus-visible span,
+	.ns-menu button:hover span,
+	.ns-menu button:focus-visible span {
+		color: #04120a;
+	}
+	.ns[data-mode='lite'] .ns-exit {
+		display: none;
+	}
+	.ns-out {
+		margin-top: 0.75rem;
+	}
+	.ns-out p {
+		margin: 0;
+		white-space: pre-wrap;
+	}
+	.ns-echo {
+		color: var(--amber);
+	}
+	.ns-prompt {
+		display: flex;
+		align-items: baseline;
+		gap: 0.6rem;
+		margin-top: 1rem;
+	}
+	.ns-prompt label {
+		color: var(--amber);
+		white-space: nowrap;
+	}
+	.ns-prompt input {
+		flex: 1;
+		min-width: 0;
+		background: transparent;
+		border: 0;
+		outline: none;
+		color: var(--phosphor);
+		font: inherit;
+		text-shadow: inherit;
+		caret-color: var(--phosphor);
+		box-shadow: none !important;
+	}
+
+	.ns .lab-content {
+		--lab-fg: var(--phosphor);
+		--lab-muted: var(--phosphor-dim);
+		--lab-accent: var(--amber);
+		--lab-rule: rgb(125 255 176 / 0.2);
+		--lab-font: var(--term-font);
+		--lab-head-font: var(--term-font);
+		--lab-head-case: uppercase;
+		margin-top: 0.75rem;
+		line-height: 1.35;
+	}
+	.ns .lab-h {
+		font-size: 2.2rem;
+		color: var(--amber);
+		margin-bottom: 0.25rem;
+	}
+	.ns .lab-h::before {
+		content: '# ';
+		color: var(--phosphor-dim);
+	}
+	.ns .lab-sub {
+		font-size: 1.15rem;
+		letter-spacing: 0.1em;
+		border-bottom-style: dashed;
+	}
+	.ns .lab-sub::before {
+		content: '## ';
+	}
+	.ns .lab-meta {
+		font-size: 1.1rem;
+	}
+	.ns .lab-tags {
+		font-size: 1.15rem;
+	}
+	.ns .lab-rows > * {
+		grid-template-columns: 9rem 1fr;
+	}
+
+	/* ── No JS: just the terminal, every file printed ─────────────────────── */
+	.ns[data-mode='static'] .ns-terminal {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+		min-height: 100svh;
+	}
+	.ns[data-mode='static'] .ns-bezel {
+		height: auto;
+	}
+	.ns[data-mode='static'] .ns-menu,
+	.ns[data-mode='static'] .ns-prompt,
+	.ns[data-mode='static'] .ns-top {
+		display: none;
+	}
+
+	/* ── Lite: rain drawn in CSS behind the monitor ───────────────────────── */
+	.ns-rain {
+		display: none;
+	}
+	.ns[data-mode='lite'] {
+		background: radial-gradient(ellipse at 70% 0%, #1a2140, #05070d 70%);
+	}
+	.ns[data-mode='lite'] .ns-rain {
+		display: block;
+		position: fixed;
+		inset: -20% 0 0;
+		pointer-events: none;
+		background-image:
+			repeating-linear-gradient(
+				100deg,
+				transparent 0 18px,
+				rgb(159 182 255 / 0.12) 18px 19px,
+				transparent 19px 47px
+			),
+			repeating-linear-gradient(
+				100deg,
+				transparent 0 31px,
+				rgb(159 182 255 / 0.08) 31px 32px,
+				transparent 32px 73px
+			);
+		background-size:
+			100% 140px,
+			100% 220px;
+		animation: ns-rain 0.6s linear infinite;
+	}
+	@keyframes ns-rain {
+		to {
+			background-position:
+				-24px 140px,
+				-38px 220px;
+		}
+	}
+	.ns[data-mode='lite'] .ns-top {
+		display: none;
+	}
+	@media (max-width: 40rem) {
+		.ns-bezel {
+			border-radius: 1rem;
+		}
+		.ns-scroll {
+			font-size: 1.2rem;
+		}
+		.ns .lab-rows > * {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

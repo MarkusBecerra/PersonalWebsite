@@ -9,7 +9,7 @@ import { isSiteLocked } from '@/site-lock'
 
 type Props = SiteMeta
 
-const { articleDate, description, ogImage, title } = Astro.props
+const { articleDate, description, ogImage, title, noindex = false } = Astro.props
 
 // Nothing behind the gate should end up in a search index.
 const locked = isSiteLocked()
@@ -21,7 +21,7 @@ const socialImageURL = new URL(ogImage ? ogImage : '/social-card.png', Astro.url
 ---
 
 <meta charset='utf-8' />
-{locked && <meta content='noindex, nofollow' name='robots' />}
+{(locked || noindex) && <meta content='noindex, nofollow' name='robots' />}
 <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
 <meta content='IE=edge' http-equiv='X-UA-Compatible' />
 <title>{siteTitle}</title>

@@ -4,7 +4,7 @@ My personal site serving as an online resume, blog, and a place to share my hobb
 
 ## Features
 
-- Astro v4
+- Astro v5
 - TailwindCSS utility classes
 - ESLint / Prettier pre-installed and pre-configured
 - Accessible, semantic HTML markup
@@ -56,6 +56,36 @@ To remove the gate for good, delete `src/site-lock.ts`, `src/middleware.ts`,
 `src/pages/unlock.astro` and `src/pages/api/unlock.ts`, then restore
 `output: 'static'`, the unconditional `sitemap()`, and Astro's default
 `security` in `astro.config.mjs`.
+
+## Editing content
+
+About, Work, Projects and the "Currently" rows on the home page all read from
+`src/data/profile.ts`. Edit them there and every version of the site (below)
+picks up the change. Blog posts live in `src/content/blog` (see `WRITING.md`).
+
+## Experimental versions (the lab)
+
+Alternate, more playful takes on the site live under `/lab`, alongside the
+default design:
+
+| Version     | URL                 | What it is                                                    |
+| ----------- | ------------------- | ------------------------------------------------------------- |
+| Booth       | `/lab/booth/`       | A 3D DJ booth. Hot-cue pads on the decks open each section.   |
+| Night shift | `/lab/night-shift/` | An old computer in a dark room with rain outside; a terminal. |
+
+A small **Version** switcher in the bottom-right corner flips between them and
+the default site. It shows while the site is locked; set
+`PUBLIC_VERSION_SWITCHER=true` to keep it after launch, or `false` to hide it.
+The lab pages are always `noindex`.
+
+They're built with plain [three.js](https://threejs.org/) (no models or textures
+to download: everything is primitives and canvas drawings). three.js is only
+fetched on the lab pages, after the page and its text are already on screen.
+Phones, low-power devices, browsers without WebGL and visitors who prefer reduced
+motion get a lightweight 2D version of the same design; `?lite` and `?3d` in the
+URL force either one. The content itself is ordinary HTML in
+`src/components/lab/LabContent.astro`, so it stays readable and accessible
+whatever the 3D scene is doing.
 
 ## Credits
 

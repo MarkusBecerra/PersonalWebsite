@@ -1,85 +1,19 @@
 ---
 import PageLayout from '@/layouts/BaseLayout.astro'
 import ProjectEntry from '@/components/ProjectEntry.astro'
+import {
+	fitnessProjects,
+	mixes,
+	musicRoadmap,
+	softwareProjects,
+	soundcloudProfile
+} from '@/data/profile'
 
 const meta = {
 	title: 'Projects',
 	description:
 		"Music mixes, software side projects, fitness milestones — everything I'm building outside work."
 }
-
-// ─── MUSIC ────────────────────────────────────────────────────────────────────
-// To add a mix: open the track/set on SoundCloud → Share → Embed → copy the
-// `src` URL from the iframe and paste it below.
-const mixes: Array<{ title: string; embedUrl: string }> = [
-	// {
-	//   title: 'Rooftop Sunset Set — May 2026',
-	//   embedUrl: 'https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/your-handle/your-set&color=%23db9b3b&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true'
-	// }
-]
-
-const soundcloudProfile = 'https://soundcloud.com/' // ← replace with your handle
-
-const musicRoadmap = [
-	{
-		title: 'Concert rating system',
-		detail:
-			'Log every show — artist, venue, date — with a personal rating and a short review. Sortable by score, recency, and genre.',
-		status: 'Next up'
-	},
-	{
-		title: 'Albums & tracks',
-		detail:
-			'Extend the same rating model to albums and standout tracks, so the whole listening history lives in one place.',
-		status: 'Planned'
-	},
-	{
-		title: 'Live SoundCloud activity',
-		detail: 'Auto-pull recent reposts, likes, and uploads instead of hand-curating embeds.',
-		status: 'Exploring'
-	}
-]
-
-// ─── SOFTWARE ─────────────────────────────────────────────────────────────────
-// Add software / side projects here. Each entry takes:
-//   title       — project name
-//   description — 1–2 sentence summary
-//   tags        — tech stack or keywords (optional)
-//   links       — array of { label, href } for GitHub, live demo, etc. (optional)
-//   badge       — short status label, e.g. 'Active', 'Shipped', 'WIP' (optional)
-const softwareProjects: Array<{
-	title: string
-	description: string
-	tags?: string[]
-	links?: Array<{ label: string; href: string }>
-	badge?: string
-}> = [
-	// {
-	//   title: 'Personal Website',
-	//   description: 'This site — built with Astro 5, Tailwind CSS, and deployed on Vercel.',
-	//   tags: ['Astro', 'TypeScript', 'Tailwind'],
-	//   links: [{ label: 'GitHub', href: 'https://github.com/your-handle/personal-website' }],
-	//   badge: 'Active'
-	// }
-]
-
-// ─── FITNESS ──────────────────────────────────────────────────────────────────
-// Log fitness milestones, climbing sends, race results — anything worth tracking.
-// Use `badge` for the activity type (e.g. 'Bouldering', 'Running', 'Weightlifting').
-const fitnessProjects: Array<{
-	title: string
-	description: string
-	tags?: string[]
-	links?: Array<{ label: string; href: string }>
-	badge?: string
-}> = [
-	// {
-	//   title: 'V6 Flash — Movement Oakland',
-	//   description: 'Flashed my first V6 bouldering problem. Comp-style set with a big dynamic move to the lip.',
-	//   tags: ['Bouldering', 'V6', 'Flash'],
-	//   badge: 'Climbing'
-	// }
-]
 ---
 
 <PageLayout meta={meta}>
@@ -124,7 +58,7 @@ const fitnessProjects: Array<{
 					</code>{' '}
 					array in{' '}
 					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
-						src/pages/projects.astro
+						src/data/profile.ts
 					</code>
 					.
 				</p>
@@ -176,7 +110,7 @@ const fitnessProjects: Array<{
 					</code>{' '}
 					array in
 					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
-						src/pages/projects.astro
+						src/data/profile.ts
 					</code>
 					.
 				</p>
@@ -203,7 +137,7 @@ const fitnessProjects: Array<{
 					</code>{' '}
 					array in
 					<code class='rounded-sm bg-secondary px-1 py-0.5 font-mono text-xs not-italic'>
-						src/pages/projects.astro
+						src/data/profile.ts
 					</code>
 					.
 				</p>

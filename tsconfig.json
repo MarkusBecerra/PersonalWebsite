@@ -13,7 +13,9 @@
 			"@/utils": ["src/utils/index.ts"],
 			"@/types": ["src/types.ts"],
 			"@/site-config": ["src/site.config.ts"],
-			"@/site-lock": ["src/site-lock.ts"]
+			"@/site-lock": ["src/site-lock.ts"],
+			"@/data/*": ["src/data/*"],
+			"@/lab/*": ["src/lab/*"]
 		}
 	},
 	"exclude": ["node_modules", "**/node_modules/*", ".vscode", "dist"]

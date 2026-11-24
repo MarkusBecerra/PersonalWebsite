@@ -1,0 +1,301 @@
+---
+/**
+ * The real site content, as plain semantic HTML, for the experimental versions.
+ *
+ * Every version renders this same markup and restyles it through the
+ * `--lab-*` custom properties (see the bottom of this file), so the words only
+ * ever live in src/data/profile.ts and the blog collection. Without JavaScript
+ * every section simply shows, one after another.
+ */
+import { getAllPosts, sortMDByDate, categoryHref } from '@/utils'
+import {
+	bio,
+	currently,
+	email,
+	experiences,
+	fitnessProjects,
+	hobbyList,
+	mixes,
+	musicRoadmap,
+	skillsByLevel,
+	socials,
+	softwareProjects,
+	soundcloudProfile
+} from '@/data/profile'
+import { CATEGORIES } from '@/content/config'
+import { siteConfig } from '@/site-config'
+
+const posts = sortMDByDate(await getAllPosts()).slice(0, 6)
+const fmt = (d: Date) => d.toLocaleDateString(siteConfig.date.locale, siteConfig.date.options)
+---
+
+<div class='lab-content'>
+	<section id='about' class='lab-section' data-section='about' aria-labelledby='lab-about-h'>
+		<h2 id='lab-about-h' class='lab-h'>About</h2>
+		<p class='lab-lead'>Hey, I’m Markus. Engineer by trade, DJ by night, climber by weekend.</p>
+		{bio.map((p) => <p>{p}</p>)}
+
+		<h3 class='lab-sub'>Currently</h3>
+		<dl class='lab-rows'>
+			{
+				currently.map((row) => (
+					<div>
+						<dt>{row.verb}</dt>
+						<dd>{row.href ? <a href={row.href}>{row.what}</a> : row.what}</dd>
+					</div>
+				))
+			}
+		</dl>
+
+		<h3 class='lab-sub'>Things I love doing</h3>
+		<p>{hobbyList}.</p>
+
+		<h3 class='lab-sub'>Elsewhere</h3>
+		<ul class='lab-rows'>
+			{
+				socials
+					.filter((s) => !s.deprecated)
+					.map((s) => (
+						<li>
+							<a href={s.href} target='_blank' rel='noopener noreferrer'>
+								{s.label}
+							</a>
+							<span class='lab-muted'>{s.handle}</span>
+						</li>
+					))
+			}
+		</ul>
+		<p class='lab-cta'><a href={`mailto:${email}`}>{email}</a></p>
+	</section>
+
+	<section id='work' class='lab-section' data-section='work' aria-labelledby='lab-work-h'>
+		<h2 id='lab-work-h' class='lab-h'>Work</h2>
+		<p class='lab-muted'>The roles I’ve held and the skills I’ve built.</p>
+		<ul class='lab-entries'>
+			{
+				experiences.map((e) => (
+					<li>
+						<p class='lab-meta'>{e.duration}</p>
+						<p class='lab-title'>
+							{e.title} <span class='lab-muted'>at</span> {e.employer}
+						</p>
+						<p class='lab-muted'>
+							{e.team}
+							{e.location && <> · {e.location}</>}
+						</p>
+						{e.skills.length > 0 && <p class='lab-tags'>{e.skills.join(' · ')}</p>}
+					</li>
+				))
+			}
+		</ul>
+		<h3 class='lab-sub'>Skills</h3>
+		<dl class='lab-rows'>
+			{
+				skillsByLevel.map((g) => (
+					<div>
+						<dt>{g.level}</dt>
+						<dd>{g.names.join(', ')}</dd>
+					</div>
+				))
+			}
+		</dl>
+	</section>
+
+	<section id='projects' class='lab-section' data-section='projects' aria-labelledby='lab-proj-h'>
+		<h2 id='lab-proj-h' class='lab-h'>Projects</h2>
+		<p class='lab-muted'>What I’m building, mixing and tracking outside of work.</p>
+
+		<h3 class='lab-sub'>Music</h3>
+		<p>
+			{
+				mixes.length > 0
+					? `${mixes.length} mix${mixes.length === 1 ? '' : 'es'} up`
+					: 'Mixes coming soon'
+			}
+			{' · '}
+			<a href={soundcloudProfile} target='_blank' rel='noopener noreferrer'>SoundCloud</a>
+		</p>
+		<ul class='lab-entries'>
+			{
+				musicRoadmap.map((m) => (
+					<li>
+						<p class='lab-meta'>{m.status}</p>
+						<p class='lab-title'>{m.title}</p>
+						<p class='lab-muted'>{m.detail}</p>
+					</li>
+				))
+			}
+		</ul>
+
+		<h3 class='lab-sub'>Software</h3>
+		{
+			softwareProjects.length === 0 ? (
+				<p class='lab-muted'>Nothing listed yet.</p>
+			) : (
+				<ul class='lab-entries'>
+					{softwareProjects.map((p) => (
+						<li>
+							{p.badge && <p class='lab-meta'>{p.badge}</p>}
+							<p class='lab-title'>{p.title}</p>
+							<p class='lab-muted'>{p.description}</p>
+							{p.links && (
+								<p class='lab-tags'>
+									{p.links.map((l) => (
+										<a href={l.href}>{l.label}</a>
+									))}
+								</p>
+							)}
+						</li>
+					))}
+				</ul>
+			)
+		}
+
+		<h3 class='lab-sub'>Fitness</h3>
+		{
+			fitnessProjects.length === 0 ? (
+				<p class='lab-muted'>No milestones logged yet.</p>
+			) : (
+				<ul class='lab-entries'>
+					{fitnessProjects.map((p) => (
+						<li>
+							{p.badge && <p class='lab-meta'>{p.badge}</p>}
+							<p class='lab-title'>{p.title}</p>
+							<p class='lab-muted'>{p.description}</p>
+						</li>
+					))}
+				</ul>
+			)
+		}
+		<p class='lab-cta'><a href='/projects/'>Full projects page</a></p>
+	</section>
+
+	<section id='blog' class='lab-section' data-section='blog' aria-labelledby='lab-blog-h'>
+		<h2 id='lab-blog-h' class='lab-h'>Blog</h2>
+		{
+			posts.length === 0 ? (
+				<p class='lab-muted'>No posts yet — the first one is brewing.</p>
+			) : (
+				<ul class='lab-entries'>
+					{posts.map((post) => (
+						<li>
+							<p class='lab-meta'>
+								{fmt(post.data.updatedDate ?? post.data.pubDate)} · {post.data.category}
+							</p>
+							<p class='lab-title'>
+								<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+							</p>
+							<p class='lab-muted'>{post.data.description}</p>
+						</li>
+					))}
+				</ul>
+			)
+		}
+		<p class='lab-tags'>
+			{CATEGORIES.map((c) => <a href={categoryHref(c)}>{c}</a>)}
+		</p>
+		<p class='lab-cta'><a href='/blog/'>All writing</a></p>
+	</section>
+</div>
+
+<style is:global>
+	.lab-content {
+		--lab-fg: #eee;
+		--lab-muted: rgb(238 238 238 / 0.6);
+		--lab-accent: #9fd1b3;
+		--lab-rule: rgb(255 255 255 / 0.12);
+		--lab-font: Satoshi, ui-sans-serif, system-ui, sans-serif;
+		--lab-head-font: var(--lab-font);
+		--lab-head-case: none;
+		color: var(--lab-fg);
+		font-family: var(--lab-font);
+		line-height: 1.6;
+	}
+	.lab-content p {
+		margin: 0.5rem 0;
+	}
+	.lab-content a {
+		color: var(--lab-accent);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 3px;
+	}
+	.lab-content a:hover {
+		text-decoration-thickness: 2px;
+	}
+	.lab-content a:focus-visible {
+		outline: 2px solid var(--lab-accent);
+		outline-offset: 2px;
+	}
+	.lab-h {
+		font-family: var(--lab-head-font);
+		text-transform: var(--lab-head-case);
+		font-size: 1.6rem;
+		line-height: 1.2;
+		margin: 0 0 0.75rem;
+		color: var(--lab-fg);
+	}
+	.lab-sub {
+		font-family: var(--lab-head-font);
+		text-transform: var(--lab-head-case);
+		font-size: 0.8rem;
+		letter-spacing: 0.08em;
+		color: var(--lab-muted);
+		margin: 1.75rem 0 0.5rem;
+		padding-bottom: 0.35rem;
+		border-bottom: 1px solid var(--lab-rule);
+	}
+	.lab-lead {
+		font-size: 1.1rem;
+	}
+	.lab-muted,
+	.lab-muted a {
+		color: var(--lab-muted);
+	}
+	.lab-meta {
+		font-size: 0.78rem;
+		letter-spacing: 0.04em;
+		color: var(--lab-accent);
+		margin: 0 !important;
+	}
+	.lab-title {
+		font-weight: 600;
+		margin: 0.1rem 0 !important;
+	}
+	.lab-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 0.9rem;
+		font-size: 0.85rem;
+	}
+	.lab-cta {
+		margin-top: 1.25rem !important;
+	}
+	.lab-rows,
+	.lab-entries {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.lab-rows > * {
+		display: grid;
+		grid-template-columns: 7.5rem 1fr;
+		gap: 0 1rem;
+		padding: 0.35rem 0;
+		border-bottom: 1px solid var(--lab-rule);
+	}
+	.lab-rows dt {
+		color: var(--lab-muted);
+		text-transform: capitalize;
+	}
+	.lab-rows dd {
+		margin: 0;
+	}
+	.lab-entries > li {
+		padding: 0.75rem 0;
+		border-bottom: 1px solid var(--lab-rule);
+	}
+	.lab-entries > li:last-child {
+		border-bottom: 0;
+	}
+</style>
