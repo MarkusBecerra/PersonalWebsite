@@ -4,6 +4,7 @@ export {
 	getAllPosts,
 	sortMDByDate,
 	getPostsByCategory,
+	categoryHref,
 	getUniqueTags,
 	getUniqueTagsWithCount
 } from './post'

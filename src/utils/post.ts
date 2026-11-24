@@ -19,6 +19,11 @@ export function sortMDByDate(posts: Array<CollectionEntry<'blog'>>) {
 	})
 }
 
+/** URL of a category's listing page, e.g. `/blog/category/music/`. */
+export function categoryHref(category: string) {
+	return `/blog/category/${category}/`
+}
+
 /** Filter a list of posts down to a single category. */
 export function getPostsByCategory(
 	posts: Array<CollectionEntry<'blog'>>,

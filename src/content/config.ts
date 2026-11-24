@@ -11,6 +11,7 @@ function removeDupsAndLowerCase(array: string[]) {
 // The three pillars of the site + a catch-all. `engineering` covers tech/software,
 // `music` covers DJ/production, `recreation` covers climbing/hobbies.
 export const CATEGORIES = ['engineering', 'music', 'recreation', 'general'] as const
+export type Category = (typeof CATEGORIES)[number]
 
 const blog = defineCollection({
 	// Content Layer glob loader — Markdown + MDX live in src/content/blog.

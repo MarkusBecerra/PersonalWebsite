@@ -1,7 +1,7 @@
 ---
 import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/blog/PostPreview.astro'
-import { getAllPosts, sortMDByDate } from '@/utils'
+import { categoryHref, getAllPosts, sortMDByDate } from '@/utils'
 
 const MAX_POSTS = 5
 const allPosts = await getAllPosts()
@@ -12,7 +12,7 @@ const pillars = [
 	{
 		title: 'Engineering',
 		blurb: 'Software I design and ship — systems, side projects, and notes from the build.',
-		href: '/blog'
+		href: categoryHref('engineering')
 	},
 	{
 		title: 'Projects',
@@ -23,7 +23,7 @@ const pillars = [
 	{
 		title: 'Recreation',
 		blurb: 'Climbing, bouldering, and time outside — chasing the next problem and the light.',
-		href: '/blog'
+		href: categoryHref('recreation')
 	}
 ]
 
