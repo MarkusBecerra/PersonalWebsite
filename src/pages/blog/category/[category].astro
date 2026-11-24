@@ -1,0 +1,62 @@
+---
+import type { GetStaticPaths } from 'astro'
+
+import PostPreview from '@/components/blog/PostPreview.astro'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import { CATEGORIES, type Category } from '@/content/config'
+import { getAllPosts, getPostsByCategory, sortMDByDate } from '@/utils'
+
+// One line under each category's heading. Edit freely.
+const blurbs: Record<Category, string> = {
+	engineering: 'Software I design and ship — systems, side projects, and notes from the build.',
+	music: 'Mixes, sets, and production notes from the booth.',
+	recreation: 'Climbing, bouldering, and time outside — chasing the next problem and the light.',
+	general: 'Everything that doesn’t fit neatly anywhere else.'
+}
+
+// Every category gets a page, even an empty one, so links to it (like the home
+// page pillars) never 404. Used when the site is public and pages are
+// prerendered; while the site is locked Astro renders on demand and ignores this.
+export const getStaticPaths = (() =>
+	CATEGORIES.map((category) => ({ params: { category } }))) satisfies GetStaticPaths
+
+const param = String(Astro.params.category ?? '')
+if (!(CATEGORIES as readonly string[]).includes(param)) return Astro.rewrite('/404')
+const category = param as Category
+
+const posts = getPostsByCategory(sortMDByDate(await getAllPosts()), category)
+const name = category.charAt(0).toUpperCase() + category.slice(1)
+
+const meta = {
+	title: `${name} writing`,
+	description: blurbs[category]
+}
+---
+
+<PageLayout meta={meta}>
+	<div class='w-full'>
+		<a href='/blog' class='text-sm text-muted-foreground transition-colors hover:text-foreground'>
+			← All writing
+		</a>
+		<h1 class='mt-6 font-display text-4xl tracking-tight sm:text-5xl'>{name}</h1>
+		<p class='mt-4 text-lg text-muted-foreground'>{blurbs[category]}</p>
+		<p class='mt-4 text-sm tabular-nums text-muted-foreground'>
+			{posts.length}
+			{posts.length === 1 ? 'post' : 'posts'}
+		</p>
+
+		<section class='mt-12 border-t border-border' aria-label={`${name} posts`}>
+			{
+				posts.length === 0 ? (
+					<p class='py-5 italic text-muted-foreground'>Nothing here yet — check back soon.</p>
+				) : (
+					<div class='divide-y divide-border'>
+						{posts.map((p) => (
+							<PostPreview as='h2' post={p} withDesc />
+						))}
+					</div>
+				)
+			}
+		</section>
+	</div>
+</PageLayout>

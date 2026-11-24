@@ -5,7 +5,7 @@ import PageLayout from '@/layouts/BaseLayout.astro'
 import PostPreview from '@/components/blog/PostPreview.astro'
 import CategoryBadge from '@/components/CategoryBadge.astro'
 import { CATEGORIES } from '@/content/config'
-import { getAllPosts, sortMDByDate } from '@/utils'
+import { categoryHref, getAllPosts, sortMDByDate } from '@/utils'
 
 const allPosts = await getAllPosts()
 const posts = sortMDByDate(allPosts)
@@ -32,10 +32,16 @@ const meta = {
 		<p class='flex flex-wrap gap-x-5 gap-y-1 text-sm'>
 			{
 				CATEGORIES.filter((c) => counts[c] > 0).map((c) => (
-					<span class='inline-flex items-center gap-x-1.5'>
-						<CategoryBadge category={c} />
-						<span class='tabular-nums text-muted-foreground'>{counts[c]}</span>
-					</span>
+					<a
+						href={categoryHref(c)}
+						class='group -my-1 inline-flex items-center gap-x-1.5 py-1'
+						aria-label={`${c}: ${counts[c]} ${counts[c] === 1 ? 'post' : 'posts'}`}
+					>
+						<CategoryBadge category={c} class='transition-colors group-hover:text-brand' />
+						<span class='tabular-nums text-muted-foreground transition-colors group-hover:text-brand'>
+							{counts[c]}
+						</span>
+					</a>
 				))
 			}
 		</p>
